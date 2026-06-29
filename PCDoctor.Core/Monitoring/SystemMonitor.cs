@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
-using PCDoctor.Core.Models;
+﻿using PCDoctor.Core.Models;
 
 namespace PCDoctor.Core.Monitoring
 {
@@ -12,12 +7,14 @@ namespace PCDoctor.Core.Monitoring
         private readonly CpuMonitor cpuCounter;
         private readonly MemoryMonitor memoryMonitor;
         private readonly DiskMonitor diskMonitor;
+        private readonly ProcessMonitor processMonitor;
         
         public SystemMonitor()
         {
             cpuCounter = new CpuMonitor();
             memoryMonitor = new MemoryMonitor();
             diskMonitor = new DiskMonitor();
+            processMonitor = new ProcessMonitor();
         }
 
         public SystemStats GetStats()
@@ -34,6 +31,7 @@ namespace PCDoctor.Core.Monitoring
                 AvailableMemoryMB = availableRam,
                 UsedMemoryMB = usedRam,
                 Disks = diskMonitor.GetDiskStats(),
+                TopProcesses = processMonitor.GetTopProcessByMemory()
             };
         }
     }

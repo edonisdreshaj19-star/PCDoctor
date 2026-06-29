@@ -11,5 +11,6 @@ namespace PCDoctor.Core.Models
         public float AvailableMemoryMB { get; set; }
         public float UsedMemoryMB { get; set; }
         public List<DiskStats> Disks { get; set; } = new();
+        public List<ProcessStats> TopProcesses { get; set; } = new();
     }
 }

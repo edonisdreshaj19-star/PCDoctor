@@ -40,6 +40,15 @@ namespace PCDoctor.Core
                         {
                             DiskListBox.Items.Add($"{disk.DriveName} {disk.UsedSpaceGB:F1} GB / {disk.TotalSpaceGB:F1} GB ({disk.UsagePercentage:F1}%)");
                         }
+                        
+                        ProcessListBox.Items.Clear();
+
+                        foreach (ProcessStats process in stats.TopProcesses)
+                        {
+                            ProcessListBox.Items.Add(
+                                $"{process.ProcessName} ({process.ProcessId}) - {process.MemoryUsageMB:F1} MB"
+                            );
+                        }
                     }
                 );
                 await Task.Delay(1000);
