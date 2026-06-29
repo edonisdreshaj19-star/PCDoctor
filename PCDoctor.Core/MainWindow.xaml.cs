@@ -1,13 +1,6 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using PCDoctor.Core.Models;
+using PCDoctor.Core.Monitoring;
 
 namespace PCDoctor.Core
 {
@@ -16,9 +9,38 @@ namespace PCDoctor.Core
     /// </summary>
     public partial class MainWindow : Window
     {
+        
+        private readonly SystemMonitor monitor;
         public MainWindow()
         {
             InitializeComponent();
+            
+            monitor = new SystemMonitor();
+            StartMonitoring();
+        }
+
+        private async void StartMonitoring()
+        {
+            while (true)
+            {
+                SystemStats stats = monitor.GetStats();
+
+                Dispatcher.Invoke(() =>
+                    {
+                        CpuUsageText.Text = $"{stats.CpuUsage:F1}%";
+
+                        MemoryUsageText.Text = $"{stats.UsedMemoryMB} MB / {stats.TotalMemoryMB:F0} MB";
+                        
+                        DiskListBox.Items.Clear();
+
+                        foreach (DiskStats disk in stats.Disks)
+                        {
+                            DiskListBox.Items.Add($"{disk.DriveName} {disk.UsedSpaceGB:F1} GB / {disk.TotalSpaceGB} GB ({disk.UsagePercentage:F1}%");
+                        }
+                    }
+                );
+                await Task.Delay(1000);
+            }
         }
     }
 }

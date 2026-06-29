@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PCDoctor.Core
+namespace PCDoctor.Core.Models
 {
-    class SystemStats
+    public class SystemStats
     {
         public float CpuUsage { get; set; }
-        public float AvailableMemoryMB { get; set; }
         public float TotalMemoryMB { get; set; }
+        public float AvailableMemoryMB { get; set; }
         public float UsedMemoryMB { get; set; }
-
-        public float RamUsage { get; set; }
+        public List<DiskStats> Disks { get; set; } = new();
     }
 }
