@@ -1,132 +1,149 @@
 ﻿<Window x:Class="PCDoctor.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PCDoctor.UI"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-             <Grid.RowDefinitions>
+        Title="PCDoctor"
+        Height="720"
+        Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#0B1020">
+
+    <Window.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#151B2E"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="22"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#D7DEF5"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="10"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="100"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Text="PCDoctor Dashboard"
-                   FontSize="28"
-                   FontWeight="Bold"
-                   Foreground="White"/>
+        <StackPanel Margin="10,0,0,20">
+            <TextBlock Text="PCDoctor"
+                       FontSize="34"
+                       FontWeight="Bold"/>
+
+            <TextBlock Text="System Monitoring &amp; Diagnostics"
+                       FontSize="15"
+                       Foreground="#8F9BB8"/>
+        </StackPanel>
 
         <!-- Dashboard -->
-        <UniformGrid Grid.Row="2"
-                     Columns="2"
-                     Rows="2"
-                     HorizontalAlignment="Stretch"
-                     VerticalAlignment="Top">
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.1*"/>
+                <ColumnDefinition Width="1.1*"/>
+                <ColumnDefinition Width="1.3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
 
             <!-- CPU -->
-            <Border Background="#1B1F2A"
-                    CornerRadius="12"
-                    Margin="10"
-                    Padding="20">
-
+            <Border Grid.Row="0"
+                    Grid.Column="0"
+                    Style="{StaticResource CardStyle}">
                 <StackPanel>
-
-                    <TextBlock Text="CPU"
-                               FontSize="16"
-                               Foreground="#AAAAAA"/>
+                    <TextBlock Text="CPU Usage"
+                               FontSize="15"
+                               Foreground="#9CA8C7"/>
 
                     <TextBlock x:Name="CpuUsageText"
                                Text="0%"
-                               FontSize="34"
+                               FontSize="42"
                                FontWeight="Bold"
-                               Foreground="White"
-                               Margin="0,10,0,10"/>
+                               Margin="0,12,0,16"/>
 
-                    <ProgressBar x:Name="CpuProgressBar"
-                                 Minimum="0"
-                                 Maximum="100"
-                                 Height="12"/>
-
+                    <ProgressBar x:Name="CpuProgressBar"/>
                 </StackPanel>
-
             </Border>
 
-            <!-- RAM -->
-            <Border Background="#1B1F2A"
-                    CornerRadius="12"
-                    Margin="10"
-                    Padding="20">
-
+            <!-- Memory -->
+            <Border Grid.Row="0"
+                    Grid.Column="1"
+                    Style="{StaticResource CardStyle}">
                 <StackPanel>
-
-                    <TextBlock Text="Memory"
-                               FontSize="16"
-                               Foreground="#AAAAAA"/>
+                    <TextBlock Text="Memory Usage"
+                               FontSize="15"
+                               Foreground="#9CA8C7"/>
 
                     <TextBlock x:Name="MemoryUsageText"
-                               Text="0 MB / 0 MB"
-                               FontSize="22"
+                               Text="0 GB / 0 GB"
+                               FontSize="26"
                                FontWeight="Bold"
-                               Foreground="White"
-                               Margin="0,10,0,10"/>
+                               Margin="0,16,0,18"/>
 
-                    <ProgressBar x:Name="MemoryProgressBar"
-                                 Minimum="0"
-                                 Maximum="100"
-                                 Height="12"/>
-
+                    <ProgressBar x:Name="MemoryProgressBar"/>
                 </StackPanel>
-
             </Border>
 
             <!-- Disk -->
-            <Border Background="#1B1F2A"
-                    CornerRadius="12"
-                    Margin="10"
-                    Padding="20">
-
+            <Border Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Style="{StaticResource CardStyle}">
                 <StackPanel>
-
-                    <TextBlock Text="Disk"
-                               FontSize="16"
-                               Foreground="#AAAAAA"/>
+                    <TextBlock Text="Disk Usage"
+                               FontSize="15"
+                               Foreground="#9CA8C7"/>
 
                     <ListBox x:Name="DiskListBox"
-                               Background="Transparent"
-                               BorderThickness="0"
-                               Foreground="White"
-                               Margin="0,10,0,0"/>
-
+                             Margin="0,12,0,0"/>
                 </StackPanel>
-
             </Border>
 
             <!-- Processes -->
-            <Border Background="#1B1F2A"
-                    CornerRadius="12"
-                    Margin="10"
-                    Padding="20">
-
+            <Border Grid.Row="0"
+                    Grid.Column="2"
+                    Style="{StaticResource CardStyle}">
                 <StackPanel>
-
                     <TextBlock Text="Top Processes"
-                               FontSize="16"
-                               Foreground="#AAAAAA"/>
+                               FontSize="15"
+                               Foreground="#9CA8C7"/>
 
                     <ListBox x:Name="ProcessListBox"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             Foreground="White"
-                             Margin="0,10,0,0"/>
-
+                             Margin="0,12,0,0"/>
                 </StackPanel>
-
             </Border>
 
-        </UniformGrid>
+            <!-- History -->
+            <Border Grid.Row="1"
+                    Grid.Column="2"
+                    Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="History"
+                               FontSize="15"
+                               Foreground="#9CA8C7"/>
+
+                    <ListBox x:Name="HistoryListBox"
+                             Margin="0,12,0,0"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
     </Grid>
 </Window>
