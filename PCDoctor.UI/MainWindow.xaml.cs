@@ -65,8 +65,21 @@ namespace PCDoctor.UI
                                 $"{process.ProcessName} ({process.ProcessId}) - {process.MemoryUsageMB:F1} MB"
                             );
                         }
+                        
+                        HistoryListBox.Items.Clear();
+
+                        foreach (SystemStatsHistoryDto item in history.Take(10))
+                        {
+                            double memoryPercent =
+                                item.TotalMemoryMb > 0
+                                    ? item.UsedMemoryMb / item.TotalMemoryMb * 100
+                                    : 0;
+
+                            HistoryListBox.Items.Add(
+                                $"{item.CreatedAt:HH:mm:ss} | CPU {item.CpuUsage:F1}% | RAM {memoryPercent:F1}%"
+                            );
+                        }
                     }
-                    
                 );
                 await Task.Delay(1000);
             }

@@ -1,9 +1,6 @@
 ﻿using PCDoctor.Models;
-using System;
-using System.Net.Http;
+
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using PCDoctor.Core.Models;
 
 namespace PCDoctor.Core.Services;
