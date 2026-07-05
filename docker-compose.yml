@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: pcdoctor-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: pcdoctor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pcdoctor_postgres_data:/var/lib/postgresql/data
+
+  pcdoctor-api:
+    build:
+      context: ./pcdoctor-api
+      dockerfile: Dockerfile
+    container_name: pcdoctor-api
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pcdoctor
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+
+volumes:
+  pcdoctor_postgres_data:
