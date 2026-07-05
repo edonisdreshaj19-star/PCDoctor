@@ -13,9 +13,9 @@ namespace PCDoctor.UI;
 
 public partial class MainWindow : Window
 {
-    private const int ApiSendIntervalSeconds = 10;
     private const int MaxCpuChartPoints = 30;
 
+    private readonly AppSettings settings;
     private readonly SystemMonitor monitor;
     private readonly ApiService apiService;
     private readonly ObservableCollection<ObservablePoint> cpuPoints = new();
@@ -27,6 +27,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        
+        SettingsService settingsService = new();
+        settings = settingsService.LoadSettings();
 
         monitor = new SystemMonitor();
         apiService = new ApiService();
@@ -62,13 +65,13 @@ public partial class MainWindow : Window
 
             await SendStatsIfNeededAsync(stats);
 
-            await Task.Delay(1000);
+            await Task.Delay(settings.RefreshIntervalSeconds * 1000);
         }
     }
 
     private async Task SendStatsIfNeededAsync(SystemStats stats)
     {
-        if ((DateTime.Now - lastApiSendTime).TotalSeconds < ApiSendIntervalSeconds)
+        if ((DateTime.Now - lastApiSendTime).TotalSeconds < settings.ApiSendIntervalSeconds)
         {
             return;
         }
