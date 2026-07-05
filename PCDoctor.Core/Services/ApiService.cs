@@ -8,11 +8,9 @@ namespace PCDoctor.Core.Services;
 public class ApiService
 {
     private readonly HttpClient httpClient;
-    private readonly AppSettings settings;
 
     public ApiService(AppSettings settings)
     {
-        this.settings = settings;
         httpClient = new HttpClient
         {
             BaseAddress = new Uri(settings.ApiBaseUrl)

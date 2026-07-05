@@ -23,7 +23,7 @@ public partial class SettingsWindow : Window
     {
         ApiBaseUrlTextBox.Text = settings.ApiBaseUrl;
         RefreshIntervalTextBox.Text = settings.RefreshIntervalSeconds.ToString();
-        ApiBaseUrlTextBox.Text = settings.ApiSendIntervalSeconds.ToString();
+        ApiSendIntervalTextBox.Text = settings.ApiSendIntervalSeconds.ToString();
     }
     
     private void SaveButton_Click(object sender, RoutedEventArgs e)
