@@ -125,13 +125,28 @@
             </Border>
 
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="History" Style="{StaticResource SectionTitleStyle}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
 
-                    <ListBox x:Name="HistoryListBox"
-                             MaxHeight="165"
-                             Margin="0,14,0,0"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="History" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <ListBox x:Name="HistoryListBox"
+                                 MaxHeight="75"
+                                 Margin="0,10,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                        <TextBlock Text="Diagnostics" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <ListBox x:Name="DiagnosticsListBox"
+                                 MaxHeight="75"
+                                 Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <Border Grid.Row="2"

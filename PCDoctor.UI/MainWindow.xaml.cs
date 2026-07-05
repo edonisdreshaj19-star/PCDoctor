@@ -56,8 +56,9 @@ public partial class MainWindow : Window
         {
             SystemStats stats = monitor.GetStats();
             List<SystemStatsHistoryDto> history = await apiService.GetHistoryAsync();
-
-            Dispatcher.Invoke(() => UpdateUi(stats, history));
+            List<DiagnosticMessageDto> diagnostics = await apiService.GetDiagnosticsAsync();
+            
+            Dispatcher.Invoke(() => UpdateUi(stats, history, diagnostics));
 
             await SendStatsIfNeededAsync(stats);
 
@@ -76,7 +77,7 @@ public partial class MainWindow : Window
         lastApiSendTime = DateTime.Now;
     }
 
-    private void UpdateUi(SystemStats stats, List<SystemStatsHistoryDto> history)
+    private void UpdateUi(SystemStats stats, List<SystemStatsHistoryDto> history, List<DiagnosticMessageDto> diagnostics)
     {
         UpdateCpu(stats);
         UpdateMemory(stats);
@@ -84,6 +85,7 @@ public partial class MainWindow : Window
         UpdateProcesses(stats);
         UpdateHistory(history);
         UpdateCpuChart(stats);
+        UpdateDiagnostics(diagnostics);
     }
 
     private void UpdateCpu(SystemStats stats)
@@ -151,6 +153,18 @@ public partial class MainWindow : Window
         if (cpuPoints.Count > MaxCpuChartPoints)
         {
             cpuPoints.RemoveAt(0);
+        }
+    }
+    
+    private void UpdateDiagnostics(List<DiagnosticMessageDto> diagnostics)
+    {
+        DiagnosticsListBox.Items.Clear();
+
+        foreach (DiagnosticMessageDto diagnostic in diagnostics)
+        {
+            DiagnosticsListBox.Items.Add(
+                $"{diagnostic.Level}: {diagnostic.Message}"
+            );
         }
     }
 }

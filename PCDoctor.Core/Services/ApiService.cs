@@ -55,4 +55,21 @@ public class ApiService
             return new List<SystemStatsHistoryDto>();
         }
     }
+    
+    public async Task<List<DiagnosticMessageDto>> GetDiagnosticsAsync()
+    {
+        try
+        {
+            List<DiagnosticMessageDto>? diagnostics =
+                await httpClient.GetFromJsonAsync<List<DiagnosticMessageDto>>(
+                    "/api/system-stats/diagnostics"
+                );
+
+            return diagnostics ?? new List<DiagnosticMessageDto>();
+        }
+        catch
+        {
+            return new List<DiagnosticMessageDto>();
+        }
+    }
 }
