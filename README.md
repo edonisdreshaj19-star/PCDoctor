@@ -207,7 +207,7 @@ Open the solution in Rider or Visual Studio and start **PCDoctor.UI**.
 
 > ![PCDoctor Dashboard](screenshots/dashboard.png)
 
-> ### Settings
+### Settings
 
 > ![PCDoctor Settings](screenshots/settings.png)
 
