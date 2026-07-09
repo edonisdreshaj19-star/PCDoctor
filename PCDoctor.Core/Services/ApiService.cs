@@ -4,7 +4,6 @@ using PCDoctor.Models;
 using PCDoctor.UI.Models;
 using Serilog;
 
-
 namespace PCDoctor.Core.Services;
 
 public class ApiService
@@ -151,36 +150,6 @@ public class ApiService
         Log.Information("API service device registration cache was cleared.");
     }
 
-    private async Task<DeviceRegistrationResponse> GetCurrentDeviceAsync()
-    {
-        if (currentDevice != null)
-        {
-            return currentDevice;
-        }
-
-        currentDevice = await deviceRegistrationService.GetOrRegisterDeviceAsync();
-
-        return currentDevice;
-    }
-
-    private static HttpClient CreateHttpClient(string apiBaseUrl)
-    {
-        return new HttpClient
-        {
-            BaseAddress = new Uri(apiBaseUrl)
-        };
-    }
-
-    private void MarkApiAvailable()
-    {
-        IsApiAvailable = true;
-    }
-
-    private void MarkApiUnavailable()
-    {
-        IsApiAvailable = false;
-    }
-    
     public async Task<SystemHealthResponse?> GetLatestSystemHealthAsync()
     {
         try
@@ -204,26 +173,7 @@ public class ApiService
             return null;
         }
     }
-    
-    private static DiskStats? GetPrimaryDisk(SystemStats stats)
-    {
-        string? systemDrive = Path.GetPathRoot(Environment.SystemDirectory);
 
-        if (!string.IsNullOrWhiteSpace(systemDrive))
-        {
-            DiskStats? systemDisk = stats.Disks.FirstOrDefault(d =>
-                string.Equals(d.DriveName, systemDrive, StringComparison.OrdinalIgnoreCase)
-            );
-
-            if (systemDisk != null)
-            {
-                return systemDisk;
-            }
-        }
-
-        return stats.Disks.FirstOrDefault();
-    }
-    
     public async Task<DiagnosticReportResponse?> GenerateDiagnosticReportAsync()
     {
         try
@@ -275,5 +225,78 @@ public class ApiService
 
             return null;
         }
+    }
+
+    public async Task<List<DiagnosticReportResponse>> GetDiagnosticReportHistoryAsync()
+    {
+        try
+        {
+            DeviceRegistrationResponse device = await GetCurrentDeviceAsync();
+
+            List<DiagnosticReportResponse>? reports =
+                await httpClient.GetFromJsonAsync<List<DiagnosticReportResponse>>(
+                    $"/api/devices/{device.Id}/diagnostic-reports/history"
+                );
+
+            MarkApiAvailable();
+
+            return reports ?? new List<DiagnosticReportResponse>();
+        }
+        catch (Exception e)
+        {
+            MarkApiUnavailable();
+            Log.Error(e, "Failed to fetch diagnostic report history.");
+
+            return new List<DiagnosticReportResponse>();
+        }
+    }
+
+    private async Task<DeviceRegistrationResponse> GetCurrentDeviceAsync()
+    {
+        if (currentDevice != null)
+        {
+            return currentDevice;
+        }
+
+        currentDevice = await deviceRegistrationService.GetOrRegisterDeviceAsync();
+
+        return currentDevice;
+    }
+
+    private static HttpClient CreateHttpClient(string apiBaseUrl)
+    {
+        return new HttpClient
+        {
+            BaseAddress = new Uri(apiBaseUrl)
+        };
+    }
+
+    private void MarkApiAvailable()
+    {
+        IsApiAvailable = true;
+    }
+
+    private void MarkApiUnavailable()
+    {
+        IsApiAvailable = false;
+    }
+
+    private static DiskStats? GetPrimaryDisk(SystemStats stats)
+    {
+        string? systemDrive = Path.GetPathRoot(Environment.SystemDirectory);
+
+        if (!string.IsNullOrWhiteSpace(systemDrive))
+        {
+            DiskStats? systemDisk = stats.Disks.FirstOrDefault(d =>
+                string.Equals(d.DriveName, systemDrive, StringComparison.OrdinalIgnoreCase)
+            );
+
+            if (systemDisk != null)
+            {
+                return systemDisk;
+            }
+        }
+
+        return stats.Disks.FirstOrDefault();
     }
 }

@@ -1,0 +1,200 @@
+﻿<UserControl x:Class="PCDoctor.UI.Views.Pages.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#0B1020"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <Grid Margin="28">
+        <Border Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="22"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="22"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Diagnostic Reports"
+                                   FontSize="28"
+                                   FontWeight="Bold"/>
+
+                        <TextBlock Text="Full diagnostic report history for this device."
+                                   Style="{StaticResource MutedTextStyle}"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Content="Back to Diagnostics"
+                            Command="{Binding OpenDiagnosticsCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="165"
+                            VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="3"
+                            Content="{Binding DiagnosticReportHistoryButtonText}"
+                            Command="{Binding RefreshDiagnosticReportsCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="155"
+                            VerticalAlignment="Center"/>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="REPORTS"
+                                       Style="{StaticResource HeaderTextStyle}"/>
+
+                            <TextBlock Text="{Binding DiagnosticReportHistoryCountText}"
+                                       Style="{StaticResource ValueTextStyle}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource SummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="LATEST REPORT"
+                                       Style="{StaticResource HeaderTextStyle}"/>
+
+                            <TextBlock Text="{Binding LatestDiagnosticReportTimeText}"
+                                       Style="{StaticResource ValueTextStyle}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource SummaryCardStyle}"
+                            Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="LATEST STATUS"
+                                       Style="{StaticResource HeaderTextStyle}"/>
+
+                            <TextBlock Text="{Binding LatestDiagnosticReportStatusText}"
+                                       Foreground="{Binding LatestDiagnosticReportStatusBrush}"
+                                       Style="{StaticResource ValueTextStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="4"
+                      Background="#10172A"
+                      MinHeight="42"
+                      Margin="0,0,8,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="64"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="#"
+                               Style="{StaticResource TableHeaderTextStyle}"
+                               Margin="14,0,0,0"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="TIME"
+                               Style="{StaticResource TableHeaderTextStyle}"/>
+
+                    <TextBlock Grid.Column="2"
+                               Text="SCORE"
+                               Style="{StaticResource TableHeaderTextStyle}"/>
+
+                    <TextBlock Grid.Column="3"
+                               Text="STATUS"
+                               Style="{StaticResource TableHeaderTextStyle}"/>
+
+                    <TextBlock Grid.Column="4"
+                               Text="SUMMARY"
+                               Style="{StaticResource TableHeaderTextStyle}"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="6"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding DiagnosticReportRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#10172A"
+                                        CornerRadius="12"
+                                        Padding="0"
+                                        MinHeight="64"
+                                        Margin="0,0,8,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding PositionText}"
+                                                   Style="{StaticResource TableCellTextStyle}"
+                                                   Foreground="#8F9BB8"
+                                                   Margin="14,0,0,0"/>
+
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding CreatedAtText}"
+                                                   Style="{StaticResource TableCellTextStyle}"
+                                                   FontWeight="SemiBold"/>
+
+                                        <StackPanel Grid.Column="2"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,28,0">
+                                            <TextBlock Text="{Binding HealthScoreText}"
+                                                       Style="{StaticResource TableCellTextStyle}"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0,0,0,6"/>
+
+                                            <ProgressBar Value="{Binding HealthScoreBarValue, Mode=OneWay}"
+                                                         Foreground="{Binding StatusBrush}"/>
+                                        </StackPanel>
+
+                                        <Border Grid.Column="3"
+                                                Background="#222B45"
+                                                CornerRadius="10"
+                                                Padding="10,5"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding StatusText}"
+                                                       Foreground="{Binding StatusBrush}"
+                                                       FontSize="12"
+                                                       FontWeight="Bold"/>
+                                        </Border>
+
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding SummaryText}"
+                                                   Style="{StaticResource TableCellTextStyle}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,18,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

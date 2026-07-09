@@ -10,6 +10,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="230"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -26,6 +27,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0"
@@ -41,9 +44,17 @@
                 </StackPanel>
 
                 <Button Grid.Column="1"
+                        Content="View Reports"
+                        Command="{Binding OpenReportsCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        MinWidth="145"
+                        VerticalAlignment="Center"/>
+
+                <Button Grid.Column="3"
                         Content="{Binding Dashboard.DiagnosticReportButtonText}"
                         Command="{Binding GenerateDiagnosticReportCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
+                        MinWidth="145"
                         VerticalAlignment="Center"/>
             </Grid>
         </Border>
@@ -130,7 +141,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Grid.Column="0"
                 Style="{StaticResource CardStyle}">
             <Grid>
@@ -163,7 +174,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Grid.Column="1"
                 Style="{StaticResource CardStyle}">
             <Grid>

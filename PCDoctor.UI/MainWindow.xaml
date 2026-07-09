@@ -56,7 +56,6 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Sidebar -->
         <Border Grid.Column="0"
                 Background="#0F1628"
                 BorderBrush="#1F2A44"
@@ -94,6 +93,11 @@
                                  IsChecked="{Binding IsDiagnosticsSelected, Mode=TwoWay}"
                                  Style="{StaticResource SidebarItemStyle}"/>
 
+                    <RadioButton Content="Reports"
+                                 GroupName="Navigation"
+                                 IsChecked="{Binding IsReportsSelected, Mode=TwoWay}"
+                                 Style="{StaticResource SidebarItemStyle}"/>
+
                     <RadioButton Content="History"
                                  GroupName="Navigation"
                                  IsChecked="{Binding IsHistorySelected, Mode=TwoWay}"
@@ -124,14 +128,12 @@
             </Grid>
         </Border>
 
-        <!-- Main content -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="92"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Page header -->
             <Border Grid.Row="0"
                     Background="#0B1020"
                     Padding="28,20,28,10">
@@ -149,7 +151,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Pages -->
             <Grid Grid.Row="1">
 
                 <views:DashboardView>
@@ -175,6 +176,18 @@
                         </Style>
                     </pages:DiagnosticsView.Style>
                 </pages:DiagnosticsView>
+
+                <pages:ReportsView>
+                    <pages:ReportsView.Style>
+                        <Style TargetType="{x:Type pages:ReportsView}" BasedOn="{StaticResource PageVisibilityStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPage}" Value="Reports">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </pages:ReportsView.Style>
+                </pages:ReportsView>
 
                 <pages:HistoryView>
                     <pages:HistoryView.Style>
