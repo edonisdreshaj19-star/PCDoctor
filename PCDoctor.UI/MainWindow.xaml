@@ -36,6 +36,94 @@
             <Setter Property="Margin" Value="0,4,20,0"/>
         </Style>
 
+        <Style x:Key="SettingsButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#24304F"/>
+            <Setter Property="Foreground" Value="#EAF0FF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="14,8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#334166"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#1D2742"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InvisibleRepeatButtonStyle" TargetType="{x:Type RepeatButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type Thumb}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="#3C4664"
+                                CornerRadius="4"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track"
+                                   Orientation="{TemplateBinding Orientation}"
+                                   IsDirectionReversed="True">
+
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand"
+                                                  Style="{StaticResource InvisibleRepeatButtonStyle}"/>
+                                </Track.DecreaseRepeatButton>
+
+                                <Track.Thumb>
+                                    <Thumb/>
+                                </Track.Thumb>
+
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand"
+                                                  Style="{StaticResource InvisibleRepeatButtonStyle}"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
         </Style>
@@ -46,12 +134,49 @@
             <Setter Property="Foreground" Value="#D7DEF5"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Foreground" Value="#D7DEF5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ItemBorder"
+                                Background="Transparent"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder"
+                                        Property="Background"
+                                        Value="#222B45"/>
+                            </Trigger>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder"
+                                        Property="Background"
+                                        Value="#1D263E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ProgressBar">
             <Setter Property="Height" Value="10"/>
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="100"/>
+            <Setter Property="Background" Value="#29324A"/>
+            <Setter Property="Foreground" Value="LightGreen"/>
         </Style>
     </Window.Resources>
 
@@ -78,23 +203,23 @@
                            Margin="0,4,0,0"/>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ApiStatusText}"
-                               Foreground="{Binding ApiStatusBrush}"
+                    <TextBlock Text="{Binding Dashboard.ApiStatusText}"
+                               Foreground="{Binding Dashboard.ApiStatusBrush}"
                                FontSize="13"
                                Margin="0,8,20,0"/>
 
-                    <TextBlock Text="{Binding LastSyncText}"
+                    <TextBlock Text="{Binding Dashboard.LastSyncText}"
                                Style="{StaticResource StatusTextStyle}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding DeviceNameText}"
+                    <TextBlock Text="{Binding Dashboard.DeviceNameText}"
                                Style="{StaticResource DeviceTextStyle}"/>
 
-                    <TextBlock Text="{Binding DeviceIdText}"
+                    <TextBlock Text="{Binding Dashboard.DeviceIdText}"
                                Style="{StaticResource DeviceTextStyle}"/>
 
-                    <TextBlock Text="{Binding OperatingSystemText}"
+                    <TextBlock Text="{Binding Dashboard.OperatingSystemText}"
                                Style="{StaticResource DeviceTextStyle}"/>
                 </StackPanel>
             </StackPanel>
@@ -102,9 +227,10 @@
             <Button Grid.Column="1"
                     Content="Settings"
                     Width="110"
-                    Height="36"
+                    Height="38"
                     Margin="0,8,10,0"
-                    Command="{Binding OpenSettingsCommand}"/>
+                    Command="{Binding OpenSettingsCommand}"
+                    Style="{StaticResource SettingsButtonStyle}"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -117,19 +243,20 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="180"/>
                 <RowDefinition Height="240"/>
-                <RowDefinition Height="210"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="CPU Usage" Style="{StaticResource SectionTitleStyle}"/>
 
-                    <TextBlock Text="{Binding CpuUsageText}"
+                    <TextBlock Text="{Binding Dashboard.CpuUsageText}"
                                FontSize="44"
                                FontWeight="Bold"
                                Margin="0,16,0,18"/>
 
-                    <ProgressBar Value="{Binding CpuProgressValue}"/>
+                    <ProgressBar Value="{Binding Dashboard.CpuProgressValue}"
+                                 Foreground="{Binding Dashboard.CpuProgressBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -137,23 +264,42 @@
                 <StackPanel>
                     <TextBlock Text="Memory Usage" Style="{StaticResource SectionTitleStyle}"/>
 
-                    <TextBlock Text="{Binding MemoryUsageText}"
+                    <TextBlock Text="{Binding Dashboard.MemoryUsageText}"
                                FontSize="28"
                                FontWeight="Bold"
                                Margin="0,22,0,20"/>
 
-                    <ProgressBar Value="{Binding MemoryProgressValue}"/>
+                    <ProgressBar Value="{Binding Dashboard.MemoryProgressValue}"
+                                 Foreground="{Binding Dashboard.MemoryProgressBrush}"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource CardStyle}">
-                <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
                     <TextBlock Text="Top Processes" Style="{StaticResource SectionTitleStyle}"/>
 
-                    <ListBox ItemsSource="{Binding ProcessItems}"
-                             MaxHeight="115"
-                             Margin="0,14,0,0"/>
-                </StackPanel>
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Margin="0,14,0,0">
+                        <ItemsControl ItemsSource="{Binding Dashboard.ProcessItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Foreground="#D7DEF5"
+                                               FontSize="13"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,8,6"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
             </Border>
 
             <Border Grid.Row="1"
@@ -161,11 +307,50 @@
                     Grid.ColumnSpan="2"
                     Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Disk Usage" Style="{StaticResource SectionTitleStyle}"/>
+                    <TextBlock Text="System Health" Style="{StaticResource SectionTitleStyle}"/>
 
-                    <ListBox ItemsSource="{Binding DiskItems}"
-                             MaxHeight="165"
-                             Margin="0,14,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,6">
+                        <TextBlock Text="{Binding Dashboard.HealthScoreText}"
+                                   FontSize="36"
+                                   FontWeight="Bold"/>
+
+                        <TextBlock Text="{Binding Dashboard.HealthStatusText}"
+                                   Foreground="{Binding Dashboard.HealthStatusBrush}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="14,14,0,0"/>
+                    </StackPanel>
+
+                    <ProgressBar Value="{Binding Dashboard.HealthProgressValue}"
+                                 Foreground="{Binding Dashboard.HealthStatusBrush}"
+                                 Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{Binding Dashboard.HealthSummaryText}"
+                               Foreground="#8F9BB8"
+                               FontSize="13"
+                               Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Recommendations"
+                               Foreground="#A9B7D8"
+                               FontSize="12"
+                               FontWeight="SemiBold"/>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Height="78"
+                                  Margin="0,6,0,0">
+                        <ItemsControl ItemsSource="{Binding Dashboard.HealthRecommendationItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Foreground="#D7DEF5"
+                                               FontSize="13"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,8,6"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </StackPanel>
             </Border>
 
@@ -176,27 +361,75 @@
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0">
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
                         <TextBlock Text="History" Style="{StaticResource SectionTitleStyle}"/>
 
-                        <ListBox ItemsSource="{Binding HistoryItems}"
-                                 MaxHeight="75"
-                                 Margin="0,10,0,0"/>
-                    </StackPanel>
+                        <ScrollViewer Grid.Row="1"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Margin="0,10,0,0">
+                            <ItemsControl ItemsSource="{Binding Dashboard.HistoryItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   Foreground="#D7DEF5"
+                                                   FontSize="13"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,8,6"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
 
-                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
                         <TextBlock Text="Diagnostics" Style="{StaticResource SectionTitleStyle}"/>
 
-                        <ListBox ItemsSource="{Binding DiagnosticItems}"
-                                 MaxHeight="75"
-                                 Margin="0,10,0,0"/>
-                    </StackPanel>
+                        <ScrollViewer Grid.Row="1"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Margin="0,10,0,0">
+                            <ItemsControl ItemsSource="{Binding Dashboard.DiagnosticItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   Foreground="#D7DEF5"
+                                                   FontSize="13"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,8,6"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
                 </Grid>
             </Border>
 
             <Border Grid.Row="2"
                     Grid.Column="0"
-                    Grid.ColumnSpan="3"
+                    Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Disk Usage" Style="{StaticResource SectionTitleStyle}"/>
+
+                    <ListBox ItemsSource="{Binding Dashboard.DiskItems}"
+                             MaxHeight="135"
+                             Margin="0,14,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
                     Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -206,10 +439,13 @@
 
                     <TextBlock Text="CPU History" Style="{StaticResource SectionTitleStyle}"/>
 
-                    <lvc:CartesianChart x:Name="CpuChart"
-                                        Grid.Row="1"
-                                        Series="{Binding CpuSeries}"
-                                        Height="140"
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding Dashboard.CpuSeries}"
+                                        XAxes="{Binding Dashboard.CpuXAxes}"
+                                        YAxes="{Binding Dashboard.CpuYAxes}"
+                                        LegendPosition="Hidden"
+                                        TooltipPosition="Hidden"
+                                        Height="170"
                                         Margin="0,12,0,0"/>
                 </Grid>
             </Border>

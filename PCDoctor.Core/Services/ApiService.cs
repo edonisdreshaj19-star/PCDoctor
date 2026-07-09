@@ -165,4 +165,28 @@ public class ApiService
     {
         IsApiAvailable = false;
     }
+    
+    public async Task<SystemHealthResponse?> GetLatestSystemHealthAsync()
+    {
+        try
+        {
+            DeviceRegistrationResponse device = await GetCurrentDeviceAsync();
+
+            SystemHealthResponse? health =
+                await httpClient.GetFromJsonAsync<SystemHealthResponse>(
+                    $"/api/devices/{device.Id}/system-health/latest"
+                );
+
+            MarkApiAvailable();
+
+            return health;
+        }
+        catch (Exception e)
+        {
+            MarkApiUnavailable();
+            Log.Error(e, "Failed to fetch latest system health.");
+
+            return null;
+        }
+    }
 }

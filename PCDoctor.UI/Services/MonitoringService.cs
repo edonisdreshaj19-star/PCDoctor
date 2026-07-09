@@ -29,7 +29,8 @@ public class MonitoringService
 
         List<SystemStatsHistoryDto> history = await apiService.GetHistoryAsync();
         List<DiagnosticMessageDto> diagnostics = await apiService.GetDiagnosticsAsync();
-
+        SystemHealthResponse? health = await apiService.GetLatestSystemHealthAsync();
+        
         return new MonitoringResult
         {
             Stats = stats,
@@ -38,6 +39,7 @@ public class MonitoringService
             IsApiAvailable = apiService.IsApiAvailable,
             LastSuccessfulSyncAt = apiService.LastSuccessfulSyncAt,
             Device = apiService.CurrentDevice,
+            Health = health
         };
     }
     

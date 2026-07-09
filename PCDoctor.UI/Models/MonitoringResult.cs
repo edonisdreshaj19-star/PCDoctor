@@ -16,4 +16,6 @@ public class MonitoringResult
     public DateTime? LastSuccessfulSyncAt { get; set; }
     
     public DeviceRegistrationResponse? Device { get; set; }
+    
+    public SystemHealthResponse? Health { get; set; }
 }

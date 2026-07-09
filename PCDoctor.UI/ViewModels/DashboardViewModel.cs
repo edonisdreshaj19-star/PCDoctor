@@ -1,0 +1,378 @@
+﻿using System.Collections.ObjectModel;
+using System.Windows.Media;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using PCDoctor.Core.Models;
+using PCDoctor.Models;
+using PCDoctor.UI.Models;
+using PCDoctor.UI.Services;
+using SkiaSharp;
+
+namespace PCDoctor.UI.ViewModels;
+
+public class DashboardViewModel : BaseViewModel
+{
+    private const int MaxCpuChartPoints = 30;
+
+    private readonly DashboardFormatter formatter;
+    private readonly ObservableCollection<double> cpuValues = new();
+
+    public ObservableCollection<string> DiskItems { get; } = new();
+    public ObservableCollection<string> ProcessItems { get; } = new();
+    public ObservableCollection<string> HistoryItems { get; } = new();
+    public ObservableCollection<string> DiagnosticItems { get; } = new();
+    public ObservableCollection<string> HealthRecommendationItems { get; } = new();
+
+    private string cpuUsageText = "0%";
+    public string CpuUsageText
+    {
+        get => cpuUsageText;
+        set => SetProperty(ref cpuUsageText, value);
+    }
+
+    private double cpuProgressValue;
+    public double CpuProgressValue
+    {
+        get => cpuProgressValue;
+        set => SetProperty(ref cpuProgressValue, value);
+    }
+
+    private Brush cpuProgressBrush = Brushes.LightGreen;
+    public Brush CpuProgressBrush
+    {
+        get => cpuProgressBrush;
+        set => SetProperty(ref cpuProgressBrush, value);
+    }
+
+    private string memoryUsageText = "0 GB / 0 GB";
+    public string MemoryUsageText
+    {
+        get => memoryUsageText;
+        set => SetProperty(ref memoryUsageText, value);
+    }
+
+    private double memoryProgressValue;
+    public double MemoryProgressValue
+    {
+        get => memoryProgressValue;
+        set => SetProperty(ref memoryProgressValue, value);
+    }
+
+    private Brush memoryProgressBrush = Brushes.LightGreen;
+    public Brush MemoryProgressBrush
+    {
+        get => memoryProgressBrush;
+        set => SetProperty(ref memoryProgressBrush, value);
+    }
+
+    private string apiStatusText = "● API: Unknown";
+    public string ApiStatusText
+    {
+        get => apiStatusText;
+        set => SetProperty(ref apiStatusText, value);
+    }
+
+    private Brush apiStatusBrush = Brushes.Gray;
+    public Brush ApiStatusBrush
+    {
+        get => apiStatusBrush;
+        set => SetProperty(ref apiStatusBrush, value);
+    }
+
+    private string lastSyncText = "Last Sync: -";
+    public string LastSyncText
+    {
+        get => lastSyncText;
+        set => SetProperty(ref lastSyncText, value);
+    }
+
+    private string deviceNameText = "Device: -";
+    public string DeviceNameText
+    {
+        get => deviceNameText;
+        set => SetProperty(ref deviceNameText, value);
+    }
+
+    private string deviceIdText = "ID: -";
+    public string DeviceIdText
+    {
+        get => deviceIdText;
+        set => SetProperty(ref deviceIdText, value);
+    }
+
+    private string operatingSystemText = "OS: -";
+    public string OperatingSystemText
+    {
+        get => operatingSystemText;
+        set => SetProperty(ref operatingSystemText, value);
+    }
+
+    private string healthScoreText = "-- / 100";
+    public string HealthScoreText
+    {
+        get => healthScoreText;
+        set => SetProperty(ref healthScoreText, value);
+    }
+
+    private double healthProgressValue;
+    public double HealthProgressValue
+    {
+        get => healthProgressValue;
+        set => SetProperty(ref healthProgressValue, value);
+    }
+
+    private string healthStatusText = "UNKNOWN";
+    public string HealthStatusText
+    {
+        get => healthStatusText;
+        set => SetProperty(ref healthStatusText, value);
+    }
+
+    private string healthSummaryText = "No health data available.";
+    public string HealthSummaryText
+    {
+        get => healthSummaryText;
+        set => SetProperty(ref healthSummaryText, value);
+    }
+
+    private Brush healthStatusBrush = Brushes.Gray;
+    public Brush HealthStatusBrush
+    {
+        get => healthStatusBrush;
+        set => SetProperty(ref healthStatusBrush, value);
+    }
+
+    public ISeries[] CpuSeries { get; }
+
+    public Axis[] CpuXAxes { get; }
+
+    public Axis[] CpuYAxes { get; }
+
+    public DashboardViewModel(DashboardFormatter formatter)
+    {
+        this.formatter = formatter;
+
+        CpuSeries = new ISeries[]
+        {
+            new LineSeries<double>
+            {
+                Values = cpuValues,
+                Name = "CPU %",
+                GeometrySize = 0,
+                LineSmoothness = 0.8,
+                Stroke = new SolidColorPaint(new SKColor(56, 189, 248), 3),
+                Fill = new SolidColorPaint(new SKColor(56, 189, 248, 35))
+            }
+        };
+
+        CpuXAxes = new Axis[]
+        {
+            new Axis
+            {
+                IsVisible = false,
+                SeparatorsPaint = null
+            }
+        };
+
+        CpuYAxes = new Axis[]
+        {
+            new Axis
+            {
+                MinLimit = 0,
+                MaxLimit = 100,
+                LabelsPaint = new SolidColorPaint(new SKColor(143, 155, 184)),
+                SeparatorsPaint = new SolidColorPaint(new SKColor(36, 48, 79), 1)
+            }
+        };
+    }
+
+    public void Update(MonitoringResult result)
+    {
+        SystemStats stats = result.Stats;
+
+        CpuUsageText = $"{stats.CpuUsage:F1}%";
+        CpuProgressValue = stats.CpuUsage;
+        CpuProgressBrush = GetUsageBrush(stats.CpuUsage);
+
+        double memoryUsagePercent = formatter.CalculateMemoryUsagePercent(stats);
+
+        MemoryUsageText = formatter.FormatMemory(stats);
+        MemoryProgressValue = memoryUsagePercent;
+        MemoryProgressBrush = GetUsageBrush(memoryUsagePercent);
+
+        UpdateApiStatus(result);
+        UpdateDeviceInfo(result.Device);
+
+        LastSyncText = result.LastSuccessfulSyncAt.HasValue
+            ? $"Last Sync: {result.LastSuccessfulSyncAt.Value:HH:mm:ss}"
+            : "Last Sync: -";
+
+        UpdateDisks(stats);
+        UpdateProcesses(stats);
+        UpdateHistory(result.History);
+        UpdateDiagnostics(result.Diagnostics);
+        UpdateHealth(result.Health);
+        AddCpuPoint(stats.CpuUsage);
+    }
+
+    private void UpdateApiStatus(MonitoringResult result)
+    {
+        if (result.IsApiAvailable)
+        {
+            ApiStatusText = "● API: Connected";
+            ApiStatusBrush = Brushes.LightGreen;
+        }
+        else
+        {
+            ApiStatusText = "● API: Offline";
+            ApiStatusBrush = Brushes.IndianRed;
+        }
+    }
+
+    private void UpdateDeviceInfo(DeviceRegistrationResponse? device)
+    {
+        if (device == null)
+        {
+            DeviceNameText = "Device: -";
+            DeviceIdText = "ID: -";
+            OperatingSystemText = "OS: -";
+            return;
+        }
+
+        DeviceNameText = string.IsNullOrWhiteSpace(device.DeviceName)
+            ? "Device: Unknown"
+            : $"Device: {device.DeviceName}";
+
+        DeviceIdText = $"ID: {device.Id}";
+
+        OperatingSystemText = string.IsNullOrWhiteSpace(device.OperatingSystem)
+            ? "OS: Unknown"
+            : $"OS: {device.OperatingSystem}";
+    }
+
+    private void UpdateHistory(List<SystemStatsHistoryDto> history)
+    {
+        HistoryItems.Clear();
+
+        foreach (SystemStatsHistoryDto item in history.Take(10))
+        {
+            HistoryItems.Add(formatter.FormatHistory(item));
+        }
+    }
+
+    private void UpdateDiagnostics(List<DiagnosticMessageDto> diagnostics)
+    {
+        DiagnosticItems.Clear();
+
+        foreach (DiagnosticMessageDto diagnostic in diagnostics)
+        {
+            DiagnosticItems.Add(formatter.FormatDiagnostic(diagnostic));
+        }
+    }
+
+    private void UpdateHealth(SystemHealthResponse? health)
+    {
+        HealthRecommendationItems.Clear();
+
+        if (health == null)
+        {
+            HealthScoreText = "-- / 100";
+            HealthProgressValue = 0;
+            HealthStatusText = "UNKNOWN";
+            HealthStatusBrush = Brushes.Gray;
+            HealthSummaryText = "No health data available.";
+
+            HealthRecommendationItems.Add("Check API connection.");
+
+            return;
+        }
+
+        HealthScoreText = $"{health.Score} / 100";
+        HealthProgressValue = health.Score;
+        HealthStatusText = health.Status;
+        HealthStatusBrush = GetHealthStatusBrush(health.Status);
+        HealthSummaryText = GetHealthSummary(health.Status);
+
+        if (health.Recommendations.Count == 0)
+        {
+            HealthRecommendationItems.Add("No immediate action required.");
+            return;
+        }
+
+        int index = 1;
+
+        foreach (string recommendation in health.Recommendations.Distinct())
+        {
+            HealthRecommendationItems.Add($"{index}. {recommendation}");
+            index++;
+        }
+    }
+
+    private static string GetHealthSummary(string status)
+    {
+        return status.ToUpperInvariant() switch
+        {
+            "HEALTHY" => "Your system is currently in good shape.",
+            "WARNING" => "PCDoctor found performance pressure.",
+            "CRITICAL" => "PCDoctor found serious performance issues.",
+            _ => "System health could not be evaluated."
+        };
+    }
+
+    private static Brush GetHealthStatusBrush(string status)
+    {
+        return status.ToUpperInvariant() switch
+        {
+            "HEALTHY" => Brushes.LightGreen,
+            "WARNING" => Brushes.Gold,
+            "CRITICAL" => Brushes.IndianRed,
+            _ => Brushes.Gray
+        };
+    }
+
+    private static Brush GetUsageBrush(double usagePercent)
+    {
+        if (usagePercent >= 85)
+        {
+            return Brushes.IndianRed;
+        }
+
+        if (usagePercent >= 70)
+        {
+            return Brushes.Gold;
+        }
+
+        return Brushes.LightGreen;
+    }
+
+    private void UpdateProcesses(SystemStats stats)
+    {
+        ProcessItems.Clear();
+
+        foreach (ProcessStats process in stats.TopProcesses)
+        {
+            ProcessItems.Add(formatter.FormatProcess(process));
+        }
+    }
+
+    private void UpdateDisks(SystemStats stats)
+    {
+        DiskItems.Clear();
+
+        foreach (DiskStats disk in stats.Disks)
+        {
+            DiskItems.Add(formatter.FormatDisk(disk));
+        }
+    }
+
+    private void AddCpuPoint(double cpuUsage)
+    {
+        cpuValues.Add(cpuUsage);
+
+        while (cpuValues.Count > MaxCpuChartPoints)
+        {
+            cpuValues.RemoveAt(0);
+        }
+    }
+}
