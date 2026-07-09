@@ -47,6 +47,8 @@ public class SystemStatsController {
         dto.setCpuUsage(latestStats.getCpuUsage());
         dto.setUsedMemoryMb(latestStats.getUsedMemoryMb());
         dto.setTotalMemoryMb(latestStats.getTotalMemoryMb());
+        dto.setUsedDiskGb(latestStats.getUsedDiskGb());
+        dto.setTotalDiskGb(latestStats.getTotalDiskGb());
 
         return diagnosticService.analyze(dto);
     }

@@ -12,6 +12,8 @@ public class SystemStatsEntity {
     private double cpuUsage;
     private double usedMemoryMb;
     private double totalMemoryMb;
+    private double usedDiskGb;
+    private double totalDiskGb;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -45,6 +47,22 @@ public class SystemStatsEntity {
 
     public void setTotalMemoryMb(double totalMemoryMb) {
         this.totalMemoryMb = totalMemoryMb;
+    }
+
+    public double getUsedDiskGb() {
+        return usedDiskGb;
+    }
+
+    public void setUsedDiskGb(double usedDiskGb) {
+        this.usedDiskGb = usedDiskGb;
+    }
+
+    public double getTotalDiskGb() {
+        return totalDiskGb;
+    }
+
+    public void setTotalDiskGb(double totalDiskGb) {
+        this.totalDiskGb = totalDiskGb;
     }
 
     public LocalDateTime getCreatedAt() {

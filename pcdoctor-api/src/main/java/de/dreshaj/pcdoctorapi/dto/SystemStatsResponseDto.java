@@ -7,6 +7,8 @@ public class SystemStatsResponseDto {
     private double cpuUsage;
     private double usedMemoryMb;
     private double totalMemoryMb;
+    private double usedDiskGb;
+    private double totalDiskGb;
     private LocalDateTime createdAt;
 
     public SystemStatsResponseDto(
@@ -14,12 +16,16 @@ public class SystemStatsResponseDto {
             double cpuUsage,
             double usedMemoryMb,
             double totalMemoryMb,
+            double usedDiskGb,
+            double totalDiskGb,
             LocalDateTime createdAt
     ) {
         this.id = id;
         this.cpuUsage = cpuUsage;
         this.usedMemoryMb = usedMemoryMb;
         this.totalMemoryMb = totalMemoryMb;
+        this.usedDiskGb = usedDiskGb;
+        this.totalDiskGb = totalDiskGb;
         this.createdAt = createdAt;
     }
 
@@ -37,6 +43,14 @@ public class SystemStatsResponseDto {
 
     public double getTotalMemoryMb() {
         return totalMemoryMb;
+    }
+
+    public double getUsedDiskGb() {
+        return usedDiskGb;
+    }
+
+    public double getTotalDiskGb() {
+        return totalDiskGb;
     }
 
     public LocalDateTime getCreatedAt() {

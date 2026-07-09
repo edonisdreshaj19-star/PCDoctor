@@ -33,6 +33,8 @@ public class SystemStatsService {
         entity.setCpuUsage(stats.getCpuUsage());
         entity.setUsedMemoryMb(stats.getUsedMemoryMb());
         entity.setTotalMemoryMb(stats.getTotalMemoryMb());
+        entity.setUsedDiskGb(stats.getUsedDiskGb());
+        entity.setTotalDiskGb(stats.getTotalDiskGb());
 
         device.setLastSeenAt(LocalDateTime.now());
 
@@ -65,6 +67,8 @@ public class SystemStatsService {
                 entity.getCpuUsage(),
                 entity.getUsedMemoryMb(),
                 entity.getTotalMemoryMb(),
+                entity.getUsedDiskGb(),
+                entity.getTotalDiskGb(),
                 entity.getCreatedAt()
         );
     }
@@ -92,6 +96,18 @@ public class SystemStatsService {
 
         if (stats.getUsedMemoryMb() > stats.getTotalMemoryMb()) {
             throw new IllegalArgumentException("Used memory must not be greater than total memory.");
+        }
+
+        if (stats.getUsedDiskGb() < 0) {
+            throw new IllegalArgumentException("Used disk space must not be negative.");
+        }
+
+        if (stats.getTotalDiskGb() < 0) {
+            throw new IllegalArgumentException("Total disk space must not be negative.");
+        }
+
+        if (stats.getTotalDiskGb() > 0 && stats.getUsedDiskGb() > stats.getTotalDiskGb()) {
+            throw new IllegalArgumentException("Used disk space must not be greater than total disk space.");
         }
     }
 }

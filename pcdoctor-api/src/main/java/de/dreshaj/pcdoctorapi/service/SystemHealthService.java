@@ -25,29 +25,25 @@ public class SystemHealthService {
         List<String> recommendations = new ArrayList<>();
 
         double cpuUsage = latestStats.getCpuUsage();
-        double memoryUsagePercent = calculateMemoryUsagePercent(
+        double memoryUsagePercent = calculateUsagePercent(
                 latestStats.getUsedMemoryMb(),
                 latestStats.getTotalMemoryMb()
         );
+        double diskUsagePercent = calculateUsagePercent(
+                latestStats.getUsedDiskGb(),
+                latestStats.getTotalDiskGb()
+        );
 
-        if (cpuUsage >= 85) {
-            score -= 20;
-            reasons.add("High CPU usage detected: " + String.format(Locale.US,"%.1f", cpuUsage) + "%");
-            recommendations.add("Close CPU-heavy applications or check background processes.");
-        }
+        score -= analyzeCpuUsage(cpuUsage, reasons, recommendations);
+        score -= analyzeMemoryUsage(memoryUsagePercent, reasons, recommendations);
+        score -= analyzeDiskUsage(diskUsagePercent, latestStats.getTotalDiskGb(), reasons, recommendations);
 
-        if (memoryUsagePercent >= 85) {
-            score -= 20;
-            reasons.add("High memory usage detected: " + String.format(Locale.US,"%.1f", memoryUsagePercent) + "%");
-            recommendations.add("Close memory-heavy applications or restart unused services.");
-        }
+        score = Math.max(score, 0);
 
         if (reasons.isEmpty()) {
             reasons.add("System performance looks normal.");
             recommendations.add("No immediate action required.");
         }
-
-        score = Math.max(score, 0);
 
         String status = determineStatus(score);
 
@@ -59,12 +55,69 @@ public class SystemHealthService {
         );
     }
 
-    private double calculateMemoryUsagePercent(double usedMemoryMb, double totalMemoryMb) {
-        if (totalMemoryMb <= 0) {
+    private int analyzeCpuUsage(double cpuUsage, List<String> reasons, List<String> recommendations) {
+        if (cpuUsage >= 90) {
+            reasons.add("CPU usage is critically high at " + formatPercent(cpuUsage) + ".");
+            recommendations.add("Check the top processes and close applications that are using too much CPU.");
+            return 25;
+        }
+
+        if (cpuUsage >= 75) {
+            reasons.add("CPU usage is elevated at " + formatPercent(cpuUsage) + ".");
+            recommendations.add("Close unnecessary background applications if the system feels slow.");
+            return 15;
+        }
+
+        return 0;
+    }
+
+    private int analyzeMemoryUsage(double memoryUsagePercent, List<String> reasons, List<String> recommendations) {
+        if (memoryUsagePercent >= 90) {
+            reasons.add("Memory usage is critically high at " + formatPercent(memoryUsagePercent) + ".");
+            recommendations.add("Close memory-heavy applications or restart unused services.");
+            return 25;
+        }
+
+        if (memoryUsagePercent >= 80) {
+            reasons.add("Memory usage is elevated at " + formatPercent(memoryUsagePercent) + ".");
+            recommendations.add("Review memory-heavy applications and close anything you do not need.");
+            return 15;
+        }
+
+        return 0;
+    }
+
+    private int analyzeDiskUsage(
+            double diskUsagePercent,
+            double totalDiskGb,
+            List<String> reasons,
+            List<String> recommendations
+    ) {
+        if (totalDiskGb <= 0) {
             return 0;
         }
 
-        return (usedMemoryMb / totalMemoryMb) * 100;
+        if (diskUsagePercent >= 90) {
+            reasons.add("Disk usage is critically high at " + formatPercent(diskUsagePercent) + ".");
+            recommendations.add("Free up disk space by removing temporary files, unused programs, or large downloads.");
+            return 20;
+        }
+
+        if (diskUsagePercent >= 80) {
+            reasons.add("Disk usage is elevated at " + formatPercent(diskUsagePercent) + ".");
+            recommendations.add("Consider cleaning temporary files and moving large files to external storage.");
+            return 10;
+        }
+
+        return 0;
+    }
+
+    private double calculateUsagePercent(double usedValue, double totalValue) {
+        if (totalValue <= 0) {
+            return 0;
+        }
+
+        return (usedValue / totalValue) * 100;
     }
 
     private String determineStatus(int score) {
@@ -77,5 +130,9 @@ public class SystemHealthService {
         }
 
         return "CRITICAL";
+    }
+
+    private String formatPercent(double value) {
+        return String.format(Locale.US, "%.1f%%", value);
     }
 }
