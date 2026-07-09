@@ -15,13 +15,11 @@ public partial class MainWindow : Window
     private readonly SettingsService settingsService;
     private readonly WindowService windowService;
     private readonly MainViewModel viewModel;
-    
 
     public MainWindow()
     {
         InitializeComponent();
-        
-        
+
         settingsService = new SettingsService();
         settings = settingsService.LoadSettings();
 
@@ -30,19 +28,26 @@ public partial class MainWindow : Window
         windowService = new WindowService(settings, settingsService, apiService);
 
         DashboardFormatter formatter = new();
-        
+
         MonitoringService monitoringService = new(
             settings,
             monitor,
             apiService
         );
-        
-        viewModel = new MainViewModel(settings, monitoringService, formatter, windowService);
+
+        viewModel = new MainViewModel(
+            settings,
+            monitoringService,
+            apiService,
+            formatter,
+            windowService
+        );
+
         DataContext = viewModel;
-        
+
         viewModel.StartMonitoring();
     }
-    
+
     protected override void OnClosed(EventArgs e)
     {
         viewModel.StopMonitoring();

@@ -28,6 +28,9 @@ public class DashboardViewModel : BaseViewModel
     public ObservableCollection<string> HealthReasonItems { get; } = new();
     public ObservableCollection<string> HealthRecommendationItems { get; } = new();
 
+    public ObservableCollection<string> ReportDetectedIssueItems { get; } = new();
+    public ObservableCollection<string> ReportRecommendationItems { get; } = new();
+
     private string cpuUsageText = "0%";
     public string CpuUsageText
     {
@@ -147,6 +150,48 @@ public class DashboardViewModel : BaseViewModel
         set => SetProperty(ref healthStatusBrush, value);
     }
 
+    private string diagnosticReportScoreText = "-- / 100";
+    public string DiagnosticReportScoreText
+    {
+        get => diagnosticReportScoreText;
+        set => SetProperty(ref diagnosticReportScoreText, value);
+    }
+
+    private string diagnosticReportStatusText = "NO REPORT";
+    public string DiagnosticReportStatusText
+    {
+        get => diagnosticReportStatusText;
+        set => SetProperty(ref diagnosticReportStatusText, value);
+    }
+
+    private Brush diagnosticReportStatusBrush = Brushes.Gray;
+    public Brush DiagnosticReportStatusBrush
+    {
+        get => diagnosticReportStatusBrush;
+        set => SetProperty(ref diagnosticReportStatusBrush, value);
+    }
+
+    private string diagnosticReportSummaryText = "No diagnostic report generated yet.";
+    public string DiagnosticReportSummaryText
+    {
+        get => diagnosticReportSummaryText;
+        set => SetProperty(ref diagnosticReportSummaryText, value);
+    }
+
+    private string diagnosticReportCreatedAtText = "Created: -";
+    public string DiagnosticReportCreatedAtText
+    {
+        get => diagnosticReportCreatedAtText;
+        set => SetProperty(ref diagnosticReportCreatedAtText, value);
+    }
+
+    private string diagnosticReportButtonText = "Run Diagnosis";
+    public string DiagnosticReportButtonText
+    {
+        get => diagnosticReportButtonText;
+        set => SetProperty(ref diagnosticReportButtonText, value);
+    }
+
     public ISeries[] CpuSeries { get; }
 
     public Axis[] CpuXAxes { get; }
@@ -195,6 +240,8 @@ public class DashboardViewModel : BaseViewModel
                 SeparatorsPaint = new SolidColorPaint(new SKColor(36, 48, 79), 1)
             }
         };
+
+        UpdateDiagnosticReport(null);
     }
 
     public void Update(MonitoringResult result)
@@ -224,6 +271,47 @@ public class DashboardViewModel : BaseViewModel
         UpdateDiagnostics(result.Diagnostics);
         UpdateHealth(result.Health);
         AddCpuPoint(stats.CpuUsage);
+    }
+
+    public void UpdateDiagnosticReport(DiagnosticReportResponse? report)
+    {
+        ReportDetectedIssueItems.Clear();
+        ReportRecommendationItems.Clear();
+
+        if (report == null)
+        {
+            DiagnosticReportScoreText = "-- / 100";
+            DiagnosticReportStatusText = "NO REPORT";
+            DiagnosticReportStatusBrush = Brushes.Gray;
+            DiagnosticReportSummaryText = "No diagnostic report generated yet.";
+            DiagnosticReportCreatedAtText = "Created: -";
+
+            ReportDetectedIssueItems.Add("Run a diagnosis to generate a report.");
+            ReportRecommendationItems.Add("No recommendations available yet.");
+
+            return;
+        }
+
+        DiagnosticReportScoreText = $"{report.HealthScore} / 100";
+        DiagnosticReportStatusText = report.Status;
+        DiagnosticReportStatusBrush = GetHealthStatusBrush(report.Status);
+        DiagnosticReportSummaryText = report.Summary;
+        DiagnosticReportCreatedAtText = $"Created: {report.CreatedAt:HH:mm:ss}";
+
+        foreach (string issue in report.DetectedIssues.Distinct())
+        {
+            ReportDetectedIssueItems.Add($"• {issue}");
+        }
+
+        foreach (string recommendation in report.Recommendations.Distinct())
+        {
+            ReportRecommendationItems.Add($"• {recommendation}");
+        }
+    }
+
+    public void SetDiagnosticReportLoading(bool isLoading)
+    {
+        DiagnosticReportButtonText = isLoading ? "Running..." : "Run Diagnosis";
     }
 
     private void UpdateApiStatus(MonitoringResult result)

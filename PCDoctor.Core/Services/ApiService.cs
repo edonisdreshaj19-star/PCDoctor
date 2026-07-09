@@ -223,4 +223,57 @@ public class ApiService
 
         return stats.Disks.FirstOrDefault();
     }
+    
+    public async Task<DiagnosticReportResponse?> GenerateDiagnosticReportAsync()
+    {
+        try
+        {
+            DeviceRegistrationResponse device = await GetCurrentDeviceAsync();
+
+            HttpResponseMessage response = await httpClient.PostAsync(
+                $"/api/devices/{device.Id}/diagnostic-reports/generate",
+                null
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            DiagnosticReportResponse? report =
+                await response.Content.ReadFromJsonAsync<DiagnosticReportResponse>();
+
+            MarkApiAvailable();
+
+            return report;
+        }
+        catch (Exception e)
+        {
+            MarkApiUnavailable();
+            Log.Error(e, "Failed to generate diagnostic report.");
+
+            return null;
+        }
+    }
+
+    public async Task<DiagnosticReportResponse?> GetLatestDiagnosticReportAsync()
+    {
+        try
+        {
+            DeviceRegistrationResponse device = await GetCurrentDeviceAsync();
+
+            DiagnosticReportResponse? report =
+                await httpClient.GetFromJsonAsync<DiagnosticReportResponse>(
+                    $"/api/devices/{device.Id}/diagnostic-reports/latest"
+                );
+
+            MarkApiAvailable();
+
+            return report;
+        }
+        catch (Exception e)
+        {
+            MarkApiUnavailable();
+            Log.Error(e, "Failed to fetch latest diagnostic report.");
+
+            return null;
+        }
+    }
 }
