@@ -3,7 +3,9 @@ package de.dreshaj.pcdoctorapi.service;
 import de.dreshaj.pcdoctorapi.dto.DeviceRegisterDto;
 import de.dreshaj.pcdoctorapi.model.DeviceEntity;
 import de.dreshaj.pcdoctorapi.repository.DeviceRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,5 +36,20 @@ public class DeviceService {
     public DeviceEntity getDeviceById(Long id) {
         return deviceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Device not found with id: " + id));
+    }
+
+    public DeviceEntity getDeviceByToken(String deviceToken) {
+        if (deviceToken == null || deviceToken.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Missing X-Device-Token header"
+            );
+        }
+
+        return deviceRepository.findByDeviceToken(deviceToken)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Invalid device token"
+                ));
     }
 }

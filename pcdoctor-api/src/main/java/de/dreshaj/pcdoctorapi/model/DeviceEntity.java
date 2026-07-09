@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -18,7 +19,7 @@ public class DeviceEntity {
 
     private String deviceName;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "device_token", unique = true, nullable = false, updatable = false)
     private String deviceToken;
 
     private String operatingSystem;
@@ -26,6 +27,13 @@ public class DeviceEntity {
     private LocalDateTime lastSeenAt;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    public void generateDeviceToken() {
+        if (deviceToken == null || deviceToken.isBlank()) {
+            deviceToken = UUID.randomUUID().toString();
+        }
+    }
 
     @JsonIgnore
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)

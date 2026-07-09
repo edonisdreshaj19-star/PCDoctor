@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/devices/{deviceId}/system-stats")
 public class SystemStatsController {
 
     private final SystemStatsService systemStatsService;
@@ -21,23 +20,26 @@ public class SystemStatsController {
         this.diagnosticService = diagnosticService;
     }
 
-    @PostMapping
-    public String receiveStats(@PathVariable Long deviceId, @RequestBody SystemStatsDto stats) {
-        systemStatsService.saveStats(deviceId, stats);
-        return "System stats received for device with id: " + deviceId + ".";
+    @PostMapping("/api/system-stats")
+    public String receiveStats(
+            @RequestHeader(value = "X-Device-Token", required = false) String deviceToken,
+            @RequestBody SystemStatsDto stats
+    ) {
+        systemStatsService.saveStats(deviceToken, stats);
+        return "System stats received.";
     }
 
-    @GetMapping("/latest")
+    @GetMapping("/api/devices/{deviceId}/system-stats/latest")
     public SystemStatsEntity getLatestStats(@PathVariable Long deviceId) {
         return systemStatsService.getLatestStats(deviceId);
     }
 
-    @GetMapping("/history")
+    @GetMapping("/api/devices/{deviceId}/system-stats/history")
     public List<SystemStatsEntity> getHistory(@PathVariable Long deviceId) {
         return systemStatsService.getHistory(deviceId);
     }
 
-    @GetMapping("/diagnostics")
+    @GetMapping("/api/devices/{deviceId}/system-stats/diagnostics")
     public List<DiagnosticMessageDto> getDiagnostics(@PathVariable Long deviceId) {
         SystemStatsEntity latestStats = systemStatsService.getLatestStats(deviceId);
 
