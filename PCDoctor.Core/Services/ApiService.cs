@@ -54,7 +54,16 @@ public class ApiService
             usedMemoryMb = stats.UsedMemoryMB,
             totalMemoryMb = stats.TotalMemoryMB,
             usedDiskGb = primaryDisk?.UsedSpaceGB ?? 0,
-            totalDiskGb = primaryDisk?.TotalSpaceGB ?? 0
+            totalDiskGb = primaryDisk?.TotalSpaceGB ?? 0,
+            topProcesses = stats.TopProcesses
+                .Take(10)
+                .Select(process => new
+                {
+                    processName = process.ProcessName,
+                    processId = process.ProcessId,
+                    memoryUsageMb = process.MemoryUsageMB
+                })
+                .ToList()
         };
 
         try

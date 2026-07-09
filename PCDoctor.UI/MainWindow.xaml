@@ -1,4 +1,4 @@
-﻿<Window x:Class="PCDoctor.UI.MainWindow" 
+﻿<Window x:Class="PCDoctor.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
@@ -242,7 +242,7 @@
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="180"/>
-                <RowDefinition Height="240"/>
+                <RowDefinition Height="300"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -306,52 +306,130 @@
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="System Health" Style="{StaticResource SectionTitleStyle}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,6">
-                        <TextBlock Text="{Binding Dashboard.HealthScoreText}"
+                    <TextBlock Grid.Row="0"
+                               Text="System Health"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                    <Grid Grid.Row="1"
+                          Margin="0,10,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Dashboard.HealthScoreText}"
                                    FontSize="36"
                                    FontWeight="Bold"/>
 
-                        <TextBlock Text="{Binding Dashboard.HealthStatusText}"
-                                   Foreground="{Binding Dashboard.HealthStatusBrush}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Margin="14,14,0,0"/>
-                    </StackPanel>
+                        <Border Grid.Column="1"
+                                Background="#222B45"
+                                CornerRadius="10"
+                                Padding="10,5"
+                                Margin="14,10,0,0"
+                                VerticalAlignment="Top">
+                            <TextBlock Text="{Binding Dashboard.HealthStatusText}"
+                                       Foreground="{Binding Dashboard.HealthStatusBrush}"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+                    </Grid>
 
-                    <ProgressBar Value="{Binding Dashboard.HealthProgressValue}"
+                    <ProgressBar Grid.Row="2"
+                                 Value="{Binding Dashboard.HealthProgressValue}"
                                  Foreground="{Binding Dashboard.HealthStatusBrush}"
-                                 Margin="0,0,0,10"/>
+                                 Margin="0,0,0,12"/>
 
-                    <TextBlock Text="{Binding Dashboard.HealthSummaryText}"
-                               Foreground="#8F9BB8"
-                               FontSize="13"
-                               Margin="0,0,0,10"/>
+                    <Grid Grid.Row="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="Recommendations"
-                               Foreground="#A9B7D8"
-                               FontSize="12"
-                               FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="0"
+                                   Text="{Binding Dashboard.HealthSummaryText}"
+                                   Foreground="#8F9BB8"
+                                   FontSize="13"
+                                   Margin="0,0,0,12"/>
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  Height="78"
-                                  Margin="0,6,0,0">
-                        <ItemsControl ItemsSource="{Binding Dashboard.HealthRecommendationItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}"
-                                               Foreground="#D7DEF5"
-                                               FontSize="13"
-                                               TextWrapping="Wrap"
-                                               Margin="0,0,8,6"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </StackPanel>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="Detected Issues"
+                                           Foreground="#A9B7D8"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"/>
+
+                                <ScrollViewer Grid.Row="1"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              Margin="0,6,0,0">
+                                    <ItemsControl ItemsSource="{Binding Dashboard.HealthReasonItems}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}"
+                                                           Foreground="#D7DEF5"
+                                                           FontSize="13"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,0,8,6"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="Recommendations"
+                                           Foreground="#A9B7D8"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"/>
+
+                                <ScrollViewer Grid.Row="1"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              Margin="0,6,0,0">
+                                    <ItemsControl ItemsSource="{Binding Dashboard.HealthRecommendationItems}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}"
+                                                           Foreground="#D7DEF5"
+                                                           FontSize="13"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,0,8,6"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Border>
 
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource CardStyle}">
@@ -418,13 +496,30 @@
             <Border Grid.Row="2"
                     Grid.Column="0"
                     Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="Disk Usage" Style="{StaticResource SectionTitleStyle}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <ListBox ItemsSource="{Binding Dashboard.DiskItems}"
-                             MaxHeight="135"
-                             Margin="0,14,0,0"/>
-                </StackPanel>
+                    <TextBlock Grid.Row="0"
+                               Text="Disk Usage"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding Dashboard.DiskItems}"
+                                  Margin="0,14,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           Foreground="#D7DEF5"
+                                           FontSize="13"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,8,6"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
             </Border>
 
             <Border Grid.Row="2"
@@ -443,9 +538,11 @@
                                         Series="{Binding Dashboard.CpuSeries}"
                                         XAxes="{Binding Dashboard.CpuXAxes}"
                                         YAxes="{Binding Dashboard.CpuYAxes}"
+                                        DrawMarginFrame="{Binding Dashboard.CpuDrawMarginFrame}"
+                                        Background="Transparent"
                                         LegendPosition="Hidden"
                                         TooltipPosition="Hidden"
-                                        Height="170"
+                                        Height="190"
                                         Margin="0,12,0,0"/>
                 </Grid>
             </Border>

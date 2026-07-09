@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Media;
 using LiveChartsCore;
+using LiveChartsCore.Drawing;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using PCDoctor.Core.Models;
@@ -22,6 +25,7 @@ public class DashboardViewModel : BaseViewModel
     public ObservableCollection<string> ProcessItems { get; } = new();
     public ObservableCollection<string> HistoryItems { get; } = new();
     public ObservableCollection<string> DiagnosticItems { get; } = new();
+    public ObservableCollection<string> HealthReasonItems { get; } = new();
     public ObservableCollection<string> HealthRecommendationItems { get; } = new();
 
     private string cpuUsageText = "0%";
@@ -149,6 +153,12 @@ public class DashboardViewModel : BaseViewModel
 
     public Axis[] CpuYAxes { get; }
 
+    public DrawMarginFrame CpuDrawMarginFrame { get; } = new()
+    {
+        Fill = new SolidColorPaint(new SKColor(21, 27, 46)),
+        Stroke = new SolidColorPaint(new SKColor(36, 48, 79), 1)
+    };
+
     public DashboardViewModel(DashboardFormatter formatter)
     {
         this.formatter = formatter;
@@ -273,6 +283,7 @@ public class DashboardViewModel : BaseViewModel
 
     private void UpdateHealth(SystemHealthResponse? health)
     {
+        HealthReasonItems.Clear();
         HealthRecommendationItems.Clear();
 
         if (health == null)
@@ -283,6 +294,7 @@ public class DashboardViewModel : BaseViewModel
             HealthStatusBrush = Brushes.Gray;
             HealthSummaryText = "No health data available.";
 
+            HealthReasonItems.Add("System health data could not be loaded.");
             HealthRecommendationItems.Add("Check API connection.");
 
             return;
@@ -294,6 +306,26 @@ public class DashboardViewModel : BaseViewModel
         HealthStatusBrush = GetHealthStatusBrush(health.Status);
         HealthSummaryText = GetHealthSummary(health.Status);
 
+        AddHealthReasons(health);
+        AddHealthRecommendations(health);
+    }
+
+    private void AddHealthReasons(SystemHealthResponse health)
+    {
+        if (health.Reasons.Count == 0)
+        {
+            HealthReasonItems.Add("No issues detected.");
+            return;
+        }
+
+        foreach (string reason in health.Reasons.Distinct())
+        {
+            HealthReasonItems.Add($"• {reason}");
+        }
+    }
+
+    private void AddHealthRecommendations(SystemHealthResponse health)
+    {
         if (health.Recommendations.Count == 0)
         {
             HealthRecommendationItems.Add("No immediate action required.");
