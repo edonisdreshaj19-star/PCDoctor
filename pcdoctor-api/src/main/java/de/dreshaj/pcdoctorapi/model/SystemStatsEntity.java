@@ -1,0 +1,61 @@
+package de.dreshaj.pcdoctorapi.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+public class SystemStatsEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private double cpuUsage;
+    private double usedMemoryMb;
+    private double totalMemoryMb;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_id")
+    private DeviceEntity device;
+
+    public Long getId() {
+        return id;
+    }
+
+    public double getCpuUsage() {
+        return cpuUsage;
+    }
+
+    public void setCpuUsage(double cpuUsage) {
+        this.cpuUsage = cpuUsage;
+    }
+
+    public double getUsedMemoryMb() {
+        return usedMemoryMb;
+    }
+
+    public void setUsedMemoryMb(double usedMemoryMb) {
+        this.usedMemoryMb = usedMemoryMb;
+    }
+
+    public double getTotalMemoryMb() {
+        return totalMemoryMb;
+    }
+
+    public void setTotalMemoryMb(double totalMemoryMb) {
+        this.totalMemoryMb = totalMemoryMb;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public DeviceEntity getDevice() {
+        return device;
+    }
+
+    public void setDevice(DeviceEntity device) {
+        this.device = device;
+    }
+}
