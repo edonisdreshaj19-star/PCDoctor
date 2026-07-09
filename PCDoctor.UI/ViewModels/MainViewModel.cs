@@ -13,7 +13,7 @@ namespace PCDoctor.UI.ViewModels;
 
 public class MainViewModel : BaseViewModel
 {
-    private const int MaxCpuChartPoints = 30;
+        private const int MaxCpuChartPoints = 30;
 
     private readonly DashboardFormatter formatter;
     private readonly AppSettings settings;
@@ -96,6 +96,39 @@ public class MainViewModel : BaseViewModel
         }
     }
 
+    private string deviceNameText = "Device: -";
+    public string DeviceNameText
+    {
+        get => deviceNameText;
+        set
+        {
+            deviceNameText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string deviceIdText = "ID: -";
+    public string DeviceIdText
+    {
+        get => deviceIdText;
+        set
+        {
+            deviceIdText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string operatingSystemText = "OS: -";
+    public string OperatingSystemText
+    {
+        get => operatingSystemText;
+        set
+        {
+            operatingSystemText = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ISeries[] CpuSeries { get; }
 
     public MainViewModel(
@@ -172,11 +205,34 @@ public class MainViewModel : BaseViewModel
             ? $"Last Sync: {result.LastSuccessfulSyncAt.Value:HH:mm:ss}"
             : "Last Sync: -";
 
+        UpdateDeviceInfo(result.Device);
+
         UpdateDisks(stats);
         UpdateProcesses(stats);
         UpdateHistory(result.History);
         AddCpuPoint(stats.CpuUsage);
         UpdateDiagnostics(result.Diagnostics);
+    }
+
+    private void UpdateDeviceInfo(DeviceRegistrationResponse? device)
+    {
+        if (device == null)
+        {
+            DeviceNameText = "Device: -";
+            DeviceIdText = "ID: -";
+            OperatingSystemText = "OS: -";
+            return;
+        }
+
+        DeviceNameText = string.IsNullOrWhiteSpace(device.DeviceName)
+            ? "Device: Unknown"
+            : $"Device: {device.DeviceName}";
+
+        DeviceIdText = $"ID: {device.Id}";
+
+        OperatingSystemText = string.IsNullOrWhiteSpace(device.OperatingSystem)
+            ? "OS: Unknown"
+            : $"OS: {device.OperatingSystem}";
     }
 
     private void UpdateHistory(List<SystemStatsHistoryDto> history)

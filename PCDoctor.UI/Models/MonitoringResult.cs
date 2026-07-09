@@ -14,4 +14,6 @@ public class MonitoringResult
     public bool IsApiAvailable { get; set; }
 
     public DateTime? LastSuccessfulSyncAt { get; set; }
+    
+    public DeviceRegistrationResponse? Device { get; set; }
 }

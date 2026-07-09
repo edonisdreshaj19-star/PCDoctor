@@ -30,6 +30,12 @@
             <Setter Property="Margin" Value="0,8,20,0"/>
         </Style>
 
+        <Style x:Key="DeviceTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#6F7FA6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4,20,0"/>
+        </Style>
+
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
         </Style>
@@ -51,7 +57,7 @@
 
     <Grid Margin="28">
         <Grid.RowDefinitions>
-            <RowDefinition Height="105"/>
+            <RowDefinition Height="125"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -77,6 +83,17 @@
 
                     <TextBlock Text="{Binding LastSyncText}"
                                Style="{StaticResource StatusTextStyle}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding DeviceNameText}"
+                               Style="{StaticResource DeviceTextStyle}"/>
+
+                    <TextBlock Text="{Binding DeviceIdText}"
+                               Style="{StaticResource DeviceTextStyle}"/>
+
+                    <TextBlock Text="{Binding OperatingSystemText}"
+                               Style="{StaticResource DeviceTextStyle}"/>
                 </StackPanel>
             </StackPanel>
 

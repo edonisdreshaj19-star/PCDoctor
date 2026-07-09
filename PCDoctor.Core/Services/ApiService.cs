@@ -12,6 +12,7 @@ public class ApiService
     private readonly DeviceRegistrationService deviceRegistrationService;
 
     private DeviceRegistrationResponse? currentDevice;
+    public DeviceRegistrationResponse? CurrentDevice => currentDevice;
 
     public bool IsApiAvailable { get; private set; }
     public DateTime? LastSuccessfulSyncAt { get; private set; }

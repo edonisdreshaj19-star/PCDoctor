@@ -36,7 +36,8 @@ public class MonitoringService
             History = history,
             Diagnostics = diagnostics,
             IsApiAvailable = apiService.IsApiAvailable,
-            LastSuccessfulSyncAt = apiService.LastSuccessfulSyncAt
+            LastSuccessfulSyncAt = apiService.LastSuccessfulSyncAt,
+            Device = apiService.CurrentDevice,
         };
     }
     

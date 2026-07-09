@@ -12,4 +12,7 @@ public class DeviceRegistrationResponse
 
     [JsonPropertyName("deviceToken")]
     public string DeviceToken { get; set; } = string.Empty;
+    
+    [JsonPropertyName("operatingSystem")]
+    public string OperatingSystem { get; set; } = string.Empty;
 }
