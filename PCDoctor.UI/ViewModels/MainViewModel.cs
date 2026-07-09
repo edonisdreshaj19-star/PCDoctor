@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Media;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
@@ -13,7 +14,7 @@ namespace PCDoctor.UI.ViewModels;
 
 public class MainViewModel : BaseViewModel
 {
-        private const int MaxCpuChartPoints = 30;
+    private const int MaxCpuChartPoints = 30;
 
     private readonly DashboardFormatter formatter;
     private readonly AppSettings settings;
@@ -74,13 +75,24 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    private string apiStatusText = "API: Unknown";
+    private string apiStatusText = "● API: Unknown";
     public string ApiStatusText
     {
         get => apiStatusText;
         set
         {
             apiStatusText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private Brush apiStatusBrush = Brushes.Gray;
+    public Brush ApiStatusBrush
+    {
+        get => apiStatusBrush;
+        set
+        {
+            apiStatusBrush = value;
             OnPropertyChanged();
         }
     }
@@ -197,21 +209,32 @@ public class MainViewModel : BaseViewModel
         MemoryUsageText = formatter.FormatMemory(stats);
         MemoryProgressValue = formatter.CalculateMemoryUsagePercent(stats);
 
-        ApiStatusText = result.IsApiAvailable
-            ? "API: Connected"
-            : "API: Offline";
+        UpdateApiStatus(result);
+        UpdateDeviceInfo(result.Device);
 
         LastSyncText = result.LastSuccessfulSyncAt.HasValue
             ? $"Last Sync: {result.LastSuccessfulSyncAt.Value:HH:mm:ss}"
             : "Last Sync: -";
-
-        UpdateDeviceInfo(result.Device);
 
         UpdateDisks(stats);
         UpdateProcesses(stats);
         UpdateHistory(result.History);
         AddCpuPoint(stats.CpuUsage);
         UpdateDiagnostics(result.Diagnostics);
+    }
+
+    private void UpdateApiStatus(MonitoringResult result)
+    {
+        if (result.IsApiAvailable)
+        {
+            ApiStatusText = "● API: Connected";
+            ApiStatusBrush = Brushes.LightGreen;
+        }
+        else
+        {
+            ApiStatusText = "● API: Offline";
+            ApiStatusBrush = Brushes.IndianRed;
+        }
     }
 
     private void UpdateDeviceInfo(DeviceRegistrationResponse? device)

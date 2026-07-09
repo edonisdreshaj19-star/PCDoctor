@@ -79,7 +79,9 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ApiStatusText}"
-                               Style="{StaticResource StatusTextStyle}"/>
+                               Foreground="{Binding ApiStatusBrush}"
+                               FontSize="13"
+                               Margin="0,8,20,0"/>
 
                     <TextBlock Text="{Binding LastSyncText}"
                                Style="{StaticResource StatusTextStyle}"/>
