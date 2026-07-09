@@ -6,7 +6,7 @@ namespace PCDoctor.Core.Monitoring;
 
 public class ProcessMonitor
 {
-    public List<ProcessStats> GetTopProcessByMemory(int count = 5)
+    public List<ProcessStats> GetTopProcessByMemory(int count = 20)
     {
         return Process.GetProcesses()
             .Select(process => CreateProcessesStats(process))
@@ -34,10 +34,11 @@ public class ProcessMonitor
                 "Could not read process information for process {ProcessName} with ID {ProcessId}.",
                 SafeGetProcessName(process),
                 SafeGetProcessId(process));
+
             return null;
         }
     }
-    
+
     private static string SafeGetProcessName(Process process)
     {
         try

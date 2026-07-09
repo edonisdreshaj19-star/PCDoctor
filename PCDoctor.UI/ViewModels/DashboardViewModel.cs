@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
@@ -29,6 +30,7 @@ public class DashboardViewModel : BaseViewModel
     public ObservableCollection<string> DiskPreviewItems { get; } = new();
     public ObservableCollection<string> ProcessItems { get; } = new();
     public ObservableCollection<string> ProcessPreviewItems { get; } = new();
+    public ObservableCollection<ProcessListItem> ProcessRows { get; } = new();
     public ObservableCollection<string> HistoryItems { get; } = new();
     public ObservableCollection<string> HistoryPreviewItems { get; } = new();
     public ObservableCollection<string> DiagnosticItems { get; } = new();
@@ -206,6 +208,34 @@ public class DashboardViewModel : BaseViewModel
         set => SetProperty(ref diagnosticReportButtonText, value);
     }
 
+    private string processCountText = "0 processes";
+    public string ProcessCountText
+    {
+        get => processCountText;
+        set => SetProperty(ref processCountText, value);
+    }
+
+    private string heaviestProcessText = "-";
+    public string HeaviestProcessText
+    {
+        get => heaviestProcessText;
+        set => SetProperty(ref heaviestProcessText, value);
+    }
+
+    private string processAlertText = "No data";
+    public string ProcessAlertText
+    {
+        get => processAlertText;
+        set => SetProperty(ref processAlertText, value);
+    }
+
+    private Brush processAlertBrush = Brushes.Gray;
+    public Brush ProcessAlertBrush
+    {
+        get => processAlertBrush;
+        set => SetProperty(ref processAlertBrush, value);
+    }
+
     public ISeries[] CpuSeries { get; }
 
     public Axis[] CpuXAxes { get; }
@@ -338,6 +368,10 @@ public class DashboardViewModel : BaseViewModel
 
         ProcessItems.Add("Waiting for process data...");
         ProcessPreviewItems.Add("Waiting for process data...");
+        ProcessCountText = "0 processes";
+        HeaviestProcessText = "-";
+        ProcessAlertText = "No data";
+        ProcessAlertBrush = Brushes.Gray;
 
         HistoryItems.Add("Waiting for history data...");
         HistoryPreviewItems.Add("Waiting for history data...");
@@ -517,27 +551,75 @@ public class DashboardViewModel : BaseViewModel
     {
         ProcessItems.Clear();
         ProcessPreviewItems.Clear();
+        ProcessRows.Clear();
 
-        List<string> formattedProcesses = stats.TopProcesses
-            .Select(formatter.FormatProcess)
+        List<ProcessStats> sortedProcesses = stats.TopProcesses
+            .OrderByDescending(process => process.MemoryUsageMB)
             .ToList();
 
-        if (formattedProcesses.Count == 0)
+        if (sortedProcesses.Count == 0)
         {
             ProcessItems.Add("No process data available yet.");
             ProcessPreviewItems.Add("No process data available yet.");
+
+            ProcessCountText = "0 processes";
+            HeaviestProcessText = "-";
+            ProcessAlertText = "No data";
+            ProcessAlertBrush = Brushes.Gray;
+
             return;
         }
 
-        foreach (string item in formattedProcesses)
+        foreach (ProcessStats process in sortedProcesses)
         {
-            ProcessItems.Add(item);
+            ProcessItems.Add(formatter.FormatProcess(process));
         }
 
-        foreach (string item in formattedProcesses.Take(ProcessPreviewCount))
+        foreach (string item in ProcessItems.Take(ProcessPreviewCount))
         {
             ProcessPreviewItems.Add(item);
         }
+
+        double highestMemoryUsage = sortedProcesses.Max(process => process.MemoryUsageMB);
+
+        for (int index = 0; index < sortedProcesses.Count; index++)
+        {
+            ProcessStats process = sortedProcesses[index];
+
+            ProcessRows.Add(ProcessListItem.Create(
+                position: index + 1,
+                processName: process.ProcessName,
+                processId: process.ProcessId,
+                memoryUsageMb: process.MemoryUsageMB,
+                highestMemoryUsageMb: highestMemoryUsage));
+        }
+
+        ProcessStats heaviestProcess = sortedProcesses[0];
+
+        ProcessCountText = $"{sortedProcesses.Count} processes";
+        HeaviestProcessText = $"{heaviestProcess.ProcessName} · {heaviestProcess.MemoryUsageMB:F0} MB";
+
+        UpdateProcessAlert(heaviestProcess.MemoryUsageMB);
+    }
+
+    private void UpdateProcessAlert(double heaviestProcessMemoryMb)
+    {
+        if (heaviestProcessMemoryMb >= 2000)
+        {
+            ProcessAlertText = "Heavy";
+            ProcessAlertBrush = Brushes.IndianRed;
+            return;
+        }
+
+        if (heaviestProcessMemoryMb >= 1000)
+        {
+            ProcessAlertText = "High";
+            ProcessAlertBrush = Brushes.Gold;
+            return;
+        }
+
+        ProcessAlertText = "Normal";
+        ProcessAlertBrush = Brushes.LightGreen;
     }
 
     private void UpdateDisks(SystemStats stats)
@@ -575,5 +657,79 @@ public class DashboardViewModel : BaseViewModel
         {
             cpuValues.RemoveAt(0);
         }
+    }
+}
+
+public class ProcessListItem
+{
+    public string PositionText { get; }
+    public string ProcessName { get; }
+    public int ProcessId { get; }
+    public string MemoryUsageText { get; }
+    public double MemoryUsageBarValue { get; }
+    public string MemoryLevelText { get; }
+    public Brush MemoryUsageBrush { get; }
+
+    private ProcessListItem(
+        string positionText,
+        string processName,
+        int processId,
+        string memoryUsageText,
+        double memoryUsageBarValue,
+        string memoryLevelText,
+        Brush memoryUsageBrush)
+    {
+        PositionText = positionText;
+        ProcessName = processName;
+        ProcessId = processId;
+        MemoryUsageText = memoryUsageText;
+        MemoryUsageBarValue = memoryUsageBarValue;
+        MemoryLevelText = memoryLevelText;
+        MemoryUsageBrush = memoryUsageBrush;
+    }
+
+    public static ProcessListItem Create(
+        int position,
+        string processName,
+        int processId,
+        double memoryUsageMb,
+        double highestMemoryUsageMb)
+    {
+        double barValue = highestMemoryUsageMb <= 0
+            ? 0
+            : Math.Min(100, memoryUsageMb / highestMemoryUsageMb * 100);
+
+        string memoryLevelText;
+        Brush memoryUsageBrush;
+
+        if (memoryUsageMb >= 2000)
+        {
+            memoryLevelText = "HEAVY";
+            memoryUsageBrush = Brushes.IndianRed;
+        }
+        else if (memoryUsageMb >= 1000)
+        {
+            memoryLevelText = "HIGH";
+            memoryUsageBrush = Brushes.Gold;
+        }
+        else if (memoryUsageMb >= 500)
+        {
+            memoryLevelText = "MEDIUM";
+            memoryUsageBrush = Brushes.LightSkyBlue;
+        }
+        else
+        {
+            memoryLevelText = "LOW";
+            memoryUsageBrush = Brushes.LightGreen;
+        }
+
+        return new ProcessListItem(
+            positionText: $"#{position}",
+            processName: string.IsNullOrWhiteSpace(processName) ? "Unknown" : processName,
+            processId: processId,
+            memoryUsageText: $"{memoryUsageMb:F1} MB",
+            memoryUsageBarValue: barValue,
+            memoryLevelText: memoryLevelText,
+            memoryUsageBrush: memoryUsageBrush);
     }
 }
