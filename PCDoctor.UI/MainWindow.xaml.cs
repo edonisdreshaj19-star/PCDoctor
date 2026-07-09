@@ -27,7 +27,7 @@ public partial class MainWindow : Window
 
         monitor = new SystemMonitor();
         apiService = new ApiService(settings);
-        windowService = new WindowService(settings, settingsService);
+        windowService = new WindowService(settings, settingsService, apiService);
 
         DashboardFormatter formatter = new();
         

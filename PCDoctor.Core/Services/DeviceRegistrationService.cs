@@ -57,4 +57,11 @@ public class DeviceRegistrationService
 
         return registeredDevice;
     }
+    
+    public async Task ResetDeviceRegistrationAsync()
+    {
+        await deviceTokenStore.DeleteDeviceAsync();
+
+        Log.Information("Local device registration was reset.");
+    }
 }

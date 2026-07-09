@@ -1,48 +1,53 @@
 ﻿using System.Windows;
 using PCDoctor.Core.Models;
 using PCDoctor.Core.Services;
+using PCDoctor.UI.ViewModels;
 
 namespace PCDoctor.UI;
 
 public partial class SettingsWindow : Window
 {
-    private readonly AppSettings settings;
-    private readonly SettingsService settingsService;
-    
-    public SettingsWindow(AppSettings settings, SettingsService settingsService)
+    public SettingsWindow(
+        AppSettings settings,
+        SettingsService settingsService,
+        ApiService apiService)
     {
         InitializeComponent();
 
-        this.settings = settings;
-        this.settingsService = settingsService;
+        SettingsViewModel viewModel = new(settings, settingsService, apiService);
 
-        LoadSettingsToUi();
+        viewModel.CloseRequested += CloseWindow;
+        viewModel.ConfirmationRequested += ShowConfirmation;
+        viewModel.NotificationRequested += ShowNotification;
+
+        DataContext = viewModel;
     }
 
-    private void LoadSettingsToUi()
+    private void CloseWindow(bool? dialogResult)
     {
-        ApiBaseUrlTextBox.Text = settings.ApiBaseUrl;
-        RefreshIntervalTextBox.Text = settings.RefreshIntervalSeconds.ToString();
-        ApiSendIntervalTextBox.Text = settings.ApiSendIntervalSeconds.ToString();
-    }
-    
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
-    {
-        settings.ApiBaseUrl = ApiBaseUrlTextBox.Text.Trim();
-        
-        if(int.TryParse(RefreshIntervalTextBox.Text, out int refreshInterval))
-        {
-            settings.RefreshIntervalSeconds = refreshInterval;
-        }
-        
-        if(int.TryParse(ApiSendIntervalTextBox.Text, out int apiSendInterval))
-        {
-            settings.ApiSendIntervalSeconds = apiSendInterval;
-        }
-
-        settingsService.SaveSettings(settings);
-        
-        DialogResult = true;
+        DialogResult = dialogResult;
         Close();
+    }
+
+    private bool ShowConfirmation(string message, string title)
+    {
+        MessageBoxResult result = MessageBox.Show(
+            this,
+            message,
+            title,
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        return result == MessageBoxResult.Yes;
+    }
+
+    private void ShowNotification(string message, string title)
+    {
+        MessageBox.Show(
+            this,
+            message,
+            title,
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 }

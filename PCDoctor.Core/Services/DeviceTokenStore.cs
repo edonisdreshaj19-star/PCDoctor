@@ -54,4 +54,14 @@ public class DeviceTokenStore
 
         await File.WriteAllTextAsync(filePath, json);
     }
+    
+    public Task DeleteDeviceAsync()
+    {
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+
+        return Task.CompletedTask;
+    }
 }

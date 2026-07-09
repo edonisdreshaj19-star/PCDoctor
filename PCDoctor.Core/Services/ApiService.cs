@@ -132,4 +132,12 @@ public class ApiService
     {
         IsApiAvailable = false;
     }
+    
+    public async Task ResetDeviceRegistrationAsync()
+    {
+        await deviceRegistrationService.ResetDeviceRegistrationAsync();
+        currentDevice = null;
+        IsApiAvailable = false;
+        LastSuccessfulSyncAt = null;
+    }
 }
