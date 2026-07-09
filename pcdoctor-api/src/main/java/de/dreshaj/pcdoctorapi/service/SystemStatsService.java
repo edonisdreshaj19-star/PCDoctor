@@ -1,8 +1,10 @@
 package de.dreshaj.pcdoctorapi.service;
 
+import de.dreshaj.pcdoctorapi.dto.ProcessStatsDto;
 import de.dreshaj.pcdoctorapi.dto.SystemStatsDto;
 import de.dreshaj.pcdoctorapi.dto.SystemStatsResponseDto;
 import de.dreshaj.pcdoctorapi.model.DeviceEntity;
+import de.dreshaj.pcdoctorapi.model.ProcessStatsEntity;
 import de.dreshaj.pcdoctorapi.model.SystemStatsEntity;
 import de.dreshaj.pcdoctorapi.repository.SystemStatsRepository;
 import org.springframework.stereotype.Service;
@@ -36,17 +38,28 @@ public class SystemStatsService {
         entity.setUsedDiskGb(stats.getUsedDiskGb());
         entity.setTotalDiskGb(stats.getTotalDiskGb());
 
+        for (ProcessStatsDto processDto : stats.getTopProcesses()) {
+            ProcessStatsEntity processEntity = new ProcessStatsEntity();
+            processEntity.setProcessName(processDto.getProcessName());
+            processEntity.setProcessId(processDto.getProcessId());
+            processEntity.setMemoryUsageMb(processDto.getMemoryUsageMb());
+
+            entity.addTopProcess(processEntity);
+        }
+
         device.setLastSeenAt(LocalDateTime.now());
 
         systemStatsRepository.save(entity);
     }
 
+    @Transactional(readOnly = true)
     public SystemStatsResponseDto getLatestStats(Long deviceId) {
         SystemStatsEntity latestStats = getLatestStatsEntity(deviceId);
 
         return mapToResponseDto(latestStats);
     }
 
+    @Transactional(readOnly = true)
     public List<SystemStatsResponseDto> getHistory(Long deviceId) {
         return systemStatsRepository
                 .findTop50ByDeviceIdOrderByCreatedAtDesc(deviceId)
@@ -69,8 +82,20 @@ public class SystemStatsService {
                 entity.getTotalMemoryMb(),
                 entity.getUsedDiskGb(),
                 entity.getTotalDiskGb(),
+                mapTopProcesses(entity),
                 entity.getCreatedAt()
         );
+    }
+
+    private List<ProcessStatsDto> mapTopProcesses(SystemStatsEntity entity) {
+        return entity.getTopProcesses()
+                .stream()
+                .map(process -> new ProcessStatsDto(
+                        process.getProcessName(),
+                        process.getProcessId(),
+                        process.getMemoryUsageMb()
+                ))
+                .toList();
     }
 
     private void validateStatsRequest(String deviceToken, SystemStatsDto stats) {
@@ -108,6 +133,32 @@ public class SystemStatsService {
 
         if (stats.getTotalDiskGb() > 0 && stats.getUsedDiskGb() > stats.getTotalDiskGb()) {
             throw new IllegalArgumentException("Used disk space must not be greater than total disk space.");
+        }
+
+        validateTopProcesses(stats);
+    }
+
+    private void validateTopProcesses(SystemStatsDto stats) {
+        if (stats.getTopProcesses() == null) {
+            return;
+        }
+
+        if (stats.getTopProcesses().size() > 20) {
+            throw new IllegalArgumentException("Too many top processes were provided.");
+        }
+
+        for (ProcessStatsDto process : stats.getTopProcesses()) {
+            if (process.getProcessName() == null || process.getProcessName().isBlank()) {
+                throw new IllegalArgumentException("Process name is required.");
+            }
+
+            if (process.getProcessId() < 0) {
+                throw new IllegalArgumentException("Process id must not be negative.");
+            }
+
+            if (process.getMemoryUsageMb() < 0) {
+                throw new IllegalArgumentException("Process memory usage must not be negative.");
+            }
         }
     }
 }

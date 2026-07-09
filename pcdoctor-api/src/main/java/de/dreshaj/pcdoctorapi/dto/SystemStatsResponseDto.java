@@ -1,6 +1,7 @@
 package de.dreshaj.pcdoctorapi.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SystemStatsResponseDto {
     private Long id;
@@ -9,6 +10,7 @@ public class SystemStatsResponseDto {
     private double totalMemoryMb;
     private double usedDiskGb;
     private double totalDiskGb;
+    private List<ProcessStatsDto> topProcesses;
     private LocalDateTime createdAt;
 
     public SystemStatsResponseDto(
@@ -18,6 +20,7 @@ public class SystemStatsResponseDto {
             double totalMemoryMb,
             double usedDiskGb,
             double totalDiskGb,
+            List<ProcessStatsDto> topProcesses,
             LocalDateTime createdAt
     ) {
         this.id = id;
@@ -26,6 +29,7 @@ public class SystemStatsResponseDto {
         this.totalMemoryMb = totalMemoryMb;
         this.usedDiskGb = usedDiskGb;
         this.totalDiskGb = totalDiskGb;
+        this.topProcesses = topProcesses;
         this.createdAt = createdAt;
     }
 
@@ -51,6 +55,10 @@ public class SystemStatsResponseDto {
 
     public double getTotalDiskGb() {
         return totalDiskGb;
+    }
+
+    public List<ProcessStatsDto> getTopProcesses() {
+        return topProcesses;
     }
 
     public LocalDateTime getCreatedAt() {

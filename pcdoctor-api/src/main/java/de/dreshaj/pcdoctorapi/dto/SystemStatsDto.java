@@ -1,11 +1,15 @@
 package de.dreshaj.pcdoctorapi.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SystemStatsDto {
     private double cpuUsage;
     private double usedMemoryMb;
     private double totalMemoryMb;
     private double usedDiskGb;
     private double totalDiskGb;
+    private List<ProcessStatsDto> topProcesses = new ArrayList<>();
 
     public double getCpuUsage() {
         return cpuUsage;
@@ -45,5 +49,13 @@ public class SystemStatsDto {
 
     public void setTotalDiskGb(double totalDiskGb) {
         this.totalDiskGb = totalDiskGb;
+    }
+
+    public List<ProcessStatsDto> getTopProcesses() {
+        return topProcesses;
+    }
+
+    public void setTopProcesses(List<ProcessStatsDto> topProcesses) {
+        this.topProcesses = topProcesses == null ? new ArrayList<>() : topProcesses;
     }
 }

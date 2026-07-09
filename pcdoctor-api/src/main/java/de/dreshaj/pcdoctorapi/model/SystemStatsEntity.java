@@ -2,6 +2,8 @@ package de.dreshaj.pcdoctorapi.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class SystemStatsEntity {
@@ -20,6 +22,13 @@ public class SystemStatsEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id")
     private DeviceEntity device;
+
+    @OneToMany(
+            mappedBy = "systemStats",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProcessStatsEntity> topProcesses = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -75,5 +84,18 @@ public class SystemStatsEntity {
 
     public void setDevice(DeviceEntity device) {
         this.device = device;
+    }
+
+    public List<ProcessStatsEntity> getTopProcesses() {
+        return topProcesses;
+    }
+
+    public void setTopProcesses(List<ProcessStatsEntity> topProcesses) {
+        this.topProcesses = topProcesses == null ? new ArrayList<>() : topProcesses;
+    }
+
+    public void addTopProcess(ProcessStatsEntity processStats) {
+        topProcesses.add(processStats);
+        processStats.setSystemStats(this);
     }
 }

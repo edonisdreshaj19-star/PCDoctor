@@ -1,10 +1,12 @@
 package de.dreshaj.pcdoctorapi.service;
 
+import de.dreshaj.pcdoctorapi.dto.ProcessStatsDto;
 import de.dreshaj.pcdoctorapi.dto.SystemHealthResponseDto;
 import de.dreshaj.pcdoctorapi.dto.SystemStatsResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,6 +39,12 @@ public class SystemHealthService {
         score -= analyzeCpuUsage(cpuUsage, reasons, recommendations);
         score -= analyzeMemoryUsage(memoryUsagePercent, reasons, recommendations);
         score -= analyzeDiskUsage(diskUsagePercent, latestStats.getTotalDiskGb(), reasons, recommendations);
+        score -= analyzeTopProcesses(
+                latestStats.getTopProcesses(),
+                memoryUsagePercent,
+                reasons,
+                recommendations
+        );
 
         score = Math.max(score, 0);
 
@@ -45,8 +53,7 @@ public class SystemHealthService {
             recommendations.add("No immediate action required.");
         }
 
-        String status = determineStatus(score);
-
+        String status = determineStatus(score, cpuUsage, memoryUsagePercent, diskUsagePercent);
         return new SystemHealthResponseDto(
                 score,
                 status,
@@ -112,6 +119,49 @@ public class SystemHealthService {
         return 0;
     }
 
+    private int analyzeTopProcesses(
+            List<ProcessStatsDto> topProcesses,
+            double memoryUsagePercent,
+            List<String> reasons,
+            List<String> recommendations
+    ) {
+        if (topProcesses == null || topProcesses.isEmpty()) {
+            return 0;
+        }
+
+        List<ProcessStatsDto> memoryHeavyProcesses = topProcesses.stream()
+                .filter(process -> process.getMemoryUsageMb() >= 1000)
+                .sorted(Comparator.comparingDouble(ProcessStatsDto::getMemoryUsageMb).reversed())
+                .toList();
+
+        if (memoryHeavyProcesses.isEmpty()) {
+            return 0;
+        }
+
+        ProcessStatsDto heaviestProcess = memoryHeavyProcesses.get(0);
+
+        reasons.add(
+                "The process " + heaviestProcess.getProcessName()
+                        + " is using " + formatMemory(heaviestProcess.getMemoryUsageMb())
+                        + " of memory."
+        );
+
+        recommendations.add(
+                "Review " + heaviestProcess.getProcessName()
+                        + " and close or restart it if it is not needed."
+        );
+
+        int penalty = memoryUsagePercent >= 80 ? 10 : 5;
+
+        if (memoryHeavyProcesses.size() >= 2) {
+            reasons.add(memoryHeavyProcesses.size() + " processes are using more than 1 GB of memory.");
+            recommendations.add("Close unused memory-heavy applications to free up RAM.");
+            penalty += 5;
+        }
+
+        return penalty;
+    }
+
     private double calculateUsagePercent(double usedValue, double totalValue) {
         if (totalValue <= 0) {
             return 0;
@@ -120,7 +170,16 @@ public class SystemHealthService {
         return (usedValue / totalValue) * 100;
     }
 
-    private String determineStatus(int score) {
+    private String determineStatus(
+            int score,
+            double cpuUsage,
+            double memoryUsagePercent,
+            double diskUsagePercent
+    ) {
+        if (cpuUsage >= 95 || memoryUsagePercent >= 95 || diskUsagePercent >= 95) {
+            return "CRITICAL";
+        }
+
         if (score >= 90) {
             return "HEALTHY";
         }
@@ -134,5 +193,9 @@ public class SystemHealthService {
 
     private String formatPercent(double value) {
         return String.format(Locale.US, "%.1f%%", value);
+    }
+
+    private String formatMemory(double value) {
+        return String.format(Locale.US, "%.0f MB", value);
     }
 }
