@@ -291,10 +291,6 @@ PCDoctor
 
 ![PCDoctor Diagnostic Report API](screenshots/api-diagnostic-report.png)
 
-### System Stats History API
-
-![PCDoctor System Stats History API](screenshots/api-system-stats-history.png)
-
 ### PostgreSQL System Stats Table
 
 ![PCDoctor System Stats Database](screenshots/database-system-stats.png)
